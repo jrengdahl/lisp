@@ -1,0 +1,3 @@
+echo asm $_passed
+ram:c/assem $_passed.s -o ram:temp.obj -i ram:include -c w300000
+cp ram:temp.obj $_passed.obj

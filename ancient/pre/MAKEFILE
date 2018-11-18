@@ -1,0 +1,10 @@
+CFLAGS = -I:include -B +R
+
+ucode:	ucode.o
+	ln ucode.o -l:lib/c
+
+pre:	pre.o
+	ln pre.o -l:lib/c
+
+test:
+	cc  -I:include -A -B +C +D +L +R test.c

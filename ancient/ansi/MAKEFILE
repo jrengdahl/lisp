@@ -1,0 +1,14 @@
+CFLAGS = -Ir0:include -n -B +C +D +L +R
+LIB = -lr0:lib/cl32
+
+.c.o:
+	ansi <$*.c >tmp.c
+	cc $(CFLAGS) tmp.c -o $*.o
+
+ansi.o: ansi.c
+	cc $(CFLAGS) ansi.c -o ansi.o
+
+ansi:	ansi.o
+	ln -g ansi.o $(LIB) -o ansi
+
+

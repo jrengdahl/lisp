@@ -1,0 +1,3 @@
+sh asmcp
+sh asm io
+sh link test

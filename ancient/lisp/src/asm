@@ -1,0 +1,5 @@
+echo asm $_passed
+ram:c/struct <$_passed.s >ram:temp.s
+ram:c/assem ram:temp.s -o ram:temp.o -i ram:include -c w300000
+rm ram:temp.s
+cp ram:temp.o $_passed.o

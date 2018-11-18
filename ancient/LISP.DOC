@@ -1,0 +1,71 @@
+Amiga (lisp) 1.0
+
+Copyright (C) 1987 by Jonathan Engdahl. All rights reserved.
+This software may be distributed and used without charge by
+non-profit users. This notice must be included in all copies.
+Commercial users must contact the author.
+
+     Jonathan Engdahl
+     6125 Lodi Lane
+     Saline, MI, 48176
+
+     BIX -        jengdahl
+     COMPUSERVE - 72330,174
+
+
+1.0 Introduction
+----------------
+
+Amiga (lisp) is a Lisp interpreter for the Commodore Amiga. It is entirely 
+original, and is written completely in 68000 assembly code. It has been
+written with reference to Steele's Common Lisp specification, although it
+is not intended to ever become a full blown Common Lisp.
+
+The current version implements only a subset of Common Lisp. The next version
+will incorporate functions to access the Amiga's graphics. The current
+version wil not run the single stepper "step.lsp". I will try to incorporate
+this in the next version.
+
+This is not a "safe" interpreter. Unlike interpreters such as VAXLISP and
+xlisp, if you give improper arguments to a function, you are likely to be
+visiting the guru. If you are unfamiliar with lisp, you will have an easier 
+time learning it using xlisp or some other version.
+
+If this is the case, then why does this Amiga (lisp) exist? For one reason,
+since it is written in assembly code, it is about five times faster than 
+xlisp. In fact, it is also about xxx times faster than the VAXLISP interpreter
+on a 780. Furthermore, since it is written specifically for the Amiga, it will
+hook into the Amiga graphics.
+
+
+2.0 Hardware Requirements
+-------------------------
+
+To run Amiga (lisp) you need an Amiga 500, 1000, or 2000. This version will
+not run on any processor other than the 68000. If you have replaced your
+CPU with a 68010, this program will not work. The reason for this is that the
+memory system generates an address error when it runs out of free pool. The 
+garbage collector catches the trap, does its work, and reexecutes the 
+instruction that caused the trap. I will attempt to clean this up in the 
+future.
+
+I recommend using a 65536 byte stack for starters. The interpreter does a 
+pretty good job of detecting stack overflow. If this occurs, exit, set the 
+stack to a larger size, and try again.
+
+The free pool is allocated dynamically in 16384 byte chunks. The initial 
+free pool allocation is 4 chunks.
+
+I am not about to disassemble my Amiga to see if this program will run on a 
+256K machine. It will probably work well on on a 512K machine. If you want to
+get really serious with Lisp, (this one or any other version), you will want
+to add at least a meg of RAM (mine has 2.5).
+
+3.0 Major Differences from Common Lisp
+--------------------------------------
+
+4.0 Functions
+-------------
+
+x.0 Errors
+----------

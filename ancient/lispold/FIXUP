@@ -1,0 +1,2 @@
+mv interp.src interpreter.s
+mv condit.src conditionals.s

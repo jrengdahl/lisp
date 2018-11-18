@@ -1,0 +1,20 @@
+from *
+/common/start.o+*
+/lisp/lisp.o+*
+/lisp/reader.o+*
+/lisp/printer.o+*
+/lisp/evaluator.o+*
+/lisp/interpreter.o+*
+/lisp/functions.o+*
+/lisp/specials.o+*
+/lisp/lists.o+*
+/lisp/symbols.o+*
+/lisp/numbers.o+*
+/lisp/pictures.o+*
+/lisp/predicates.o+*
+/lisp/conditionals.o+*
+/lisp/strings.o+*
+/lisp/memory.o+*
+/lisp/spy.o+*
+/lisp/io.o
+to (lisp)

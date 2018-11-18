@@ -1,0 +1,1 @@
+alink from /common/start.o+$_passed.o+io.o to $_passed

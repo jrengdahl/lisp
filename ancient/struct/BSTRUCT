@@ -1,0 +1,3 @@
+sh asm struct
+sh asm strdoc
+sh lstruct

@@ -1,0 +1,19 @@
+sh asmcp
+sh asm lisp
+sh asm reader
+sh asm printer
+sh asm symbols
+sh asm strings
+sh asm memory
+sh asm specials
+sh asm numbers
+sh asm pictures
+sh asm functions
+sh asm evaluator
+sh asm predicates
+sh asm conditionals
+sh asm lists
+sh asm interpreter
+sh asm spy
+sh asm io
+alink with lisp.bld

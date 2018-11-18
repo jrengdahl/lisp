@@ -1,0 +1,4 @@
+mkdir ram:include
+copy -r :include ram:include
+copy :c/struct ram:c
+copy :c/assem ram:c

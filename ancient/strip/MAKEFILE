@@ -1,0 +1,22 @@
+CFLAGS = -Ivd0:include -B  -Z8000
+
+count:	count.o count.h
+	vd0:c/set CLIB=vd0:lib/
+	vd0:c/set CCTEMP=vd0:tmp/
+	ln count.o -lc -o count
+
+sym:	sym.o
+	vd0:c/set CLIB=vd0:lib/
+	vd0:c/set CCTEMP=vd0:tmp/
+	ln sym.o -lc -o sym
+
+strip:	strip.o
+	vd0:c/set CLIB=vd0:lib/
+	vd0:c/set CCTEMP=vd0:tmp/
+	ln strip.o -lc -o strip
+
+struct:	struct.o
+	vd0:c/set CLIB=vd0:lib/
+	vd0:c/set CCTEMP=vd0:tmp/
+	ln struct.o -lc -o struct
+

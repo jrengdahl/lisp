@@ -1,0 +1,19 @@
+from *
+/common/start.obj+*
+/lisp/lisp.obj+*
+/lisp/reader.obj+*
+/lisp/printer.obj+*
+/lisp/evaluator.obj+*
+/lisp/interpreter.obj+*
+/lisp/functions.obj+*
+/lisp/specials.obj+*
+/lisp/lists.obj+*
+/lisp/symbols.obj+*
+/lisp/numbers.obj+*
+/lisp/predicates.obj+*
+/lisp/conditionals.obj+*
+/lisp/strings.obj+*
+/lisp/memory.obj+*
+/lisp/spy.obj+*
+/common/io.obj
+to (lisp)

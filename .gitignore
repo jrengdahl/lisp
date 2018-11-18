@@ -2,3 +2,6 @@
 *.exe
 /test.cpp
 *.o
+/new/lisp
+/new/include
+/new/test.cpp

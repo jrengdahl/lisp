@@ -2,7 +2,6 @@
 #include <unistd.h>
 #include "lispdefs.h"
 
-node nil;
 
 
 
@@ -40,9 +39,6 @@ void stackovfl()
 
 int main()
     {
-    nil.type = constype;
-    nil.car = &nil;
-    nil.cdr = &nil;
 
 
 //    startup();
@@ -50,7 +46,7 @@ int main()
     printf("; (lisp) 2.0 Copyright (c) 1987, 2018 by Jonathan Engdahl\n");
 
 //    init_memory();
-//    init_symbols();
+      init_symbols();
 //    init_specials();
 //    init_lists();
 //    init_functions();

@@ -86,10 +86,6 @@ node *lisp_read()
                 }
                 
                 
-
-
-    cmp.b    #'(',d0
-    beq        rdlist
     cmp.b    #'''',d0
     beq        rdquote
     cmp.b    #'`',d0
@@ -144,43 +140,6 @@ rdcom:
 
     bra    rdret
 
-rdlist:
-    gc
-    move.l    d6,a1
-    move.l    d6,a2
-
-    loop
-        loop.s
-            jsr iswhite
-            while_eq
-            gc
-            cmp.l #-1,d0
-            while_ne
-        end
-        jsr peekc
-        cmp.l #-1,d0
-        while_ne
-        cmp.b #')',d0
-        while_nz
-
-        newnode a0
-        move.l #constype*65536,(a0)
-        move.l d6,cdr(a0)
-        move.l d6,car(a0)
-
-        cmp.l d6,a2
-        if_eq.s
-            move.l a0,a1
-        else
-            move.l a0,cdr(a2)
-        end
-        move.l a0,a2
-        jsr lisp_read
-        move.l a0,car(a2)
-    end
-    gc
-    move.l    a1,a0
-    bra        rdret
 
 rdquote:
     gc

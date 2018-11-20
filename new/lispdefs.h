@@ -30,16 +30,16 @@ union node
 
     struct
         {
-        uint64_t sym_placeholder;   // first node of symbol
-        node *value;
+        uint64_t symbol_placeholder;   // first node of symbol
+        node *symbol_value;
         node *more;
         };
 
     struct                          // second node of symbol
         {
-        node *function;
-        node *plist;
-        node *name;
+        node *symbol_function;
+        node *symbol_plist;
+        node *symbol_name;
         };
 
     struct                          // rational number
@@ -52,7 +52,7 @@ union node
     struct                          // string
         {
         uint64_t string_placeholder1;
-        uint64_t data;
+        char data[8];
         uint64_t string_more;
         };
 
@@ -88,6 +88,25 @@ union node
         cdr(n2)
         {}
 
+    // constructor for a string  with up to  7 characters
+    node(char *string) :
+        type(stringtype),
+        flags(0),
+        reserved(0)
+        {
+        unsigned len = strlen(string);
+
+        if(len<8)length = len
+        else length = 8;
+        word1 = *(uintptr_t *)string;        
+        data[7] = 0;
+        }
+
+    // constructor for a symbol
+    node(char *string, value *node) :
+        {
+        }
+
 
     };
 
@@ -105,11 +124,9 @@ extern node *lisp_read();
 extern node *eval(node *);
 extern void lisp_print(node *);
 
+extern node *nil;
 
-static inline node *newnode()
-    {
-    return (node *)malloc(sizeof(node));
-    }
+
 
 
 #endif // LISPDEFS_H

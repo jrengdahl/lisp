@@ -25,10 +25,22 @@ void init_symbols()
     {
     node *n;
 
-    n = new(node);
+    n = new node);
     nil->type = constype;
     nil.car = &nil;
     nil.cdr = &nil;
+
+    unbound = new node;
+    unbound->type = symtype;
+
+
+    t = new node;
+    t->type = symtype;
+    t->symbol_value = t;
+    t->more = new node;
+    t->more->symbol_function = unbound;
+
+
 
     oblist = new node("oblist", nil);    
 

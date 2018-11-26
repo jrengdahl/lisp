@@ -3,18 +3,25 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
-static const unsigned constype  = 0;
-static const unsigned numtype   = 1;
-static const unsigned rattype   = 2;
-static const unsigned flttype   = 3;
-static const unsigned strtype   = 4;
-static const unsigned arraytype = 5;
-static const unsigned chartype  = 6;
-static const unsigned primtype  = 7;
-static const unsigned sfuntype  = 8;
-static const unsigned symtype   = 9;
+static const unsigned constype   = 0;
+static const unsigned numtype    = 1;
+static const unsigned rattype    = 2;
+static const unsigned flttype    = 3;
+static const unsigned stringtype = 4;
+static const unsigned arraytype  = 5;
+static const unsigned chartype   = 6;
+static const unsigned primtype   = 7;
+static const unsigned sfuntype   = 8;
+static const unsigned symtype    = 9;
 
+union node;
+
+extern node *oblist;
+extern node *nil;
+extern node *t;
+extern node *unbound;
 
 union node
     {
@@ -49,11 +56,10 @@ union node
         uint64_t denominator;
         };
 
-    struct                          // string
+    struct                          // string continuation
         {
-        uint64_t string_placeholder1;
-        char data[8];
-        uint64_t string_more;
+        node *next;
+        char data[16];
         };
 
     struct                          // char
@@ -88,23 +94,72 @@ union node
         cdr(n2)
         {}
 
-    // constructor for a string  with up to  7 characters
-    node(char *string) :
+    // constructor for a string
+    node(const char *string) :
         type(stringtype),
         flags(0),
-        reserved(0)
+        reserved(0),
+        length(strlen(string))
         {
-        unsigned len = strlen(string);
+        node *n = this;
+        int i=0;
+        int j;
 
-        if(len<8)length = len
-        else length = 8;
-        word1 = *(uintptr_t *)string;        
-        data[7] = 0;
+        for(j=0; j<8 && i<length; i++,j++)
+            {
+            data1[j] = string[i];
+            }
+        for(; j<8; j++)
+            {
+            data1[j] = 0;
+            }
+
+        while(i<length)
+            {
+            n->more = new node;
+            n = n->more;
+            for(j=0; j<16 && i<length; i++,j++)
+                {
+                data0[j] = string[i];
+                }
+            for(; j<16; j++)
+                {
+                data0[j] = 0;
+                }
+            }
+
+        n->more = 0;
         }
 
     // constructor for a symbol
-    node(char *string, value *node) :
+    node(const char *string, node *value) :
+        type(symtype),
+        flags(0),
+        reserved(0),
+        length(0)
         {
+        symbol_value = value;
+        more = new node;
+        more->symbol_function = unbound;
+        more->symbol_plist = nil;
+        more->symbol_name = new node(string);
+
+        oblist->symbol_value = new node(this, oblist->symbol_value);
+        }
+
+    node(const char *string, node &value) :
+        type(symtype),
+        flags(0),
+        reserved(0),
+        length(0)
+        {
+        symbol_value = &value;
+        more = new node;
+        more->symbol_function = unbound;
+        more->symbol_plist = nil;
+        more->symbol_name = new node(string);
+
+        oblist->symbol_value = new node(this, oblist->symbol_value);
         }
 
 
@@ -118,15 +173,11 @@ struct nodeblock
     node nodes[NODES_PER_BLOCK];
     };
 
-
-
 extern node *lisp_read();
 extern node *eval(node *);
 extern void lisp_print(node *);
 
-extern node *nil;
-
-
+extern bool cmp_str(node*, node *);
 
 
 #endif // LISPDEFS_H

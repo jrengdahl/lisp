@@ -1,4 +1,7 @@
 
-
 all:
-	gcc -o lisp lisp.cpp reader.cpp symbols.cpp
+	g++ -o test test.cpp symbols.cpp
+
+
+clean:
+	rm lisp.exe

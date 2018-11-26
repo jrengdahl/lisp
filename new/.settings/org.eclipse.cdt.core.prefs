@@ -1,0 +1,12 @@
+eclipse.preferences.version=1
+environment/project/xilinx.gnu.arm.a53.toolchain.585321503/PATH/delimiter=;
+environment/project/xilinx.gnu.arm.a53.toolchain.585321503/PATH/operation=replace
+environment/project/xilinx.gnu.arm.a53.toolchain.585321503/PATH/value=C\:\\cygwin64\\bin
+environment/project/xilinx.gnu.arm.a53.toolchain.585321503/SYSTEM_ROOT/delimiter=;
+environment/project/xilinx.gnu.arm.a53.toolchain.585321503/SYSTEM_ROOT/operation=replace
+environment/project/xilinx.gnu.arm.a53.toolchain.585321503/SYSTEM_ROOT/value=C\:\\Windows
+environment/project/xilinx.gnu.arm.a53.toolchain.585321503/TEMP/delimiter=;
+environment/project/xilinx.gnu.arm.a53.toolchain.585321503/TEMP/operation=append
+environment/project/xilinx.gnu.arm.a53.toolchain.585321503/TEMP/value=C\:\\Users\\engdahl\\AppData\\Local\\Temp
+environment/project/xilinx.gnu.arm.a53.toolchain.585321503/append=true
+environment/project/xilinx.gnu.arm.a53.toolchain.585321503/appendContributed=false

@@ -36,6 +36,7 @@ void stackovfl()
 #endif
 
 
+void init_symbols();
 
 int main()
     {

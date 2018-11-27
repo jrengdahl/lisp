@@ -27,9 +27,9 @@ union node
     {
     struct
         {
-        uint8_t type;           // cons
         uint8_t flags;
-        uint16_t reserved;
+        uint8_t type;           // cons
+        uint16_t :16;
         uint32_t length;
         node *car;
         node *cdr;
@@ -37,43 +37,43 @@ union node
 
     struct
         {
-        uint64_t symbol_placeholder;   // first node of symbol
-        node *symbol_value;
+        uint64_t : 64;              // first node of symbol
+        node *value;
         node *more;
         };
 
     struct                          // second node of symbol
         {
-        node *symbol_function;
-        node *symbol_plist;
-        node *symbol_name;
+        node *function;
+        node *plist;
+        node *name;
         };
 
-    struct                          // rational number
+    struct                          // number or rational number
         {
-        uint64_t num_placeholder;
+        uint64_t : 64;
         int64_t numerator;
         uint64_t denominator;
         };
 
     struct                          // string continuation
         {
-        node *next;
+        node *next;                 // for strings the continuation pointer comes first so that the low order bit can be used as the garbage collection flag
         char data[16];
         };
 
     struct                          // char
         {
-        uint64_t char_placeholder;
+        uint64_t : 64;
         uint64_t char_data;
         uint64_t attr;
         };
 
     struct                          // primitive
         {
-        uint64_t prim_placeholder;
+        uint64_t : 64;
         node * (*primitive)(node *arglist);
-        uint64_t prim_name;
+        uint64_t : 64;
         };
 
     struct
@@ -85,81 +85,94 @@ union node
 
     node() : word0(0), word1(0), word2(0) {}
 
-    node(node *n1, node *n2) :
-        type(constype),
-        flags(0),
-        reserved(0),
-        length(0),
-        car(n1),
-        cdr(n2)
-        {}
+    node(node *n1, node *n2) : node()
+        {
+    	type = constype;
+        car = n1;
+        cdr = n2;
+        }
+
+    node(int64_t n) : node()
+        {
+    	type = numtype;
+        numerator = n;
+        denominator = 1;
+        }
+
+    node(int64_t n, uint64_t d) : node()
+        {
+    	type = rattype;
+        numerator = n;
+        denominator = d;
+        }
 
     // constructor for a string
-    node(const char *string) :
-        type(stringtype),
-        flags(0),
-        reserved(0),
-        length(strlen(string))
+    node(const char *string) : node()
         {
+        type = stringtype;
+        length = strlen(string);
+
         node *n = this;
         int i=0;
         int j;
 
         for(j=0; j<8 && i<length; i++,j++)
             {
-            data1[j] = string[i];
+            data[j] = string[i];
             }
-        for(; j<8; j++)
+        if(i>=length)
             {
-            data1[j] = 0;
+            while(j<8)data[j++] = 0;
+            more = 0;
+            return;
             }
 
-        while(i<length)
+        more = new node;
+        n = more;
+
+        while(true)
             {
-            n->more = new node;
-            n = n->more;
             for(j=0; j<16 && i<length; i++,j++)
                 {
-                data0[j] = string[i];
+                n->data[j] = string[i];
                 }
-            for(; j<16; j++)
+            if(i>=length)
                 {
-                data0[j] = 0;
+                while(j<16)n->data[j++] = 0;
+                n->next = 0;
+                return;
                 }
-            }
 
-        n->more = 0;
+            n->more = new node;
+            n = n->more;
+            }
         }
 
     // constructor for a symbol
-    node(const char *string, node *value) :
-        type(symtype),
-        flags(0),
-        reserved(0),
-        length(0)
+    node(const char *string, node *val) : node()
         {
-        symbol_value = value;
-        more = new node;
-        more->symbol_function = unbound;
-        more->symbol_plist = nil;
-        more->symbol_name = new node(string);
+        type = symtype;
 
-        oblist->symbol_value = new node(this, oblist->symbol_value);
+        value = val;
+        more = new node;
+        more->function = unbound;
+        more->plist = nil;
+        more->name = new node(string);
+
+        oblist->value = new node(this, oblist->value);
         }
 
-    node(const char *string, node &value) :
-        type(symtype),
-        flags(0),
-        reserved(0),
-        length(0)
+    node(const char *string, node &val) : node()
         {
-        symbol_value = &value;
-        more = new node;
-        more->symbol_function = unbound;
-        more->symbol_plist = nil;
-        more->symbol_name = new node(string);
+        type = symtype;
 
-        oblist->symbol_value = new node(this, oblist->symbol_value);
+   	    value = &val;
+        more = new node;
+        more->function = unbound;
+        more->plist = nil;
+        more->name = new node(string);
+
+        oblist->value = new node(this, oblist->value);
         }
 
 

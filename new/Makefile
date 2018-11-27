@@ -1,6 +1,6 @@
 
 all:
-	g++ -o test test.cpp symbols.cpp
+	g++ -g3 -o lisp test.cpp symbols.cpp strings.cpp
 
 
 clean:

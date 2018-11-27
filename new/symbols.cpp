@@ -20,40 +20,6 @@ node *gcverbose;
 node *evalhook;
 
 
-bool cmp_str(node *l, node *r)
-    {
-    node *n = this;
-    int i=0;
-    int j;
-
-    for(j=0; j<8 && i<length; i++,j++)
-        {
-        data1[j] = string[i];
-        }
-    for(; j<8; j++)
-        {
-        data1[j] = 0;
-        }
-
-    while(i<length)
-        {
-        n->more = new node;
-        n = n->more;
-        for(j=0; j<16 && i<length; i++,j++)
-            {
-            data0[j] = string[i];
-            }
-        for(; j<16; j++)
-            {
-            data0[j] = 0;
-            }
-        }
-
-    n->more = 0;
-    }
-
-
-
 void init_symbols()
     {
     nil = new node;
@@ -64,25 +30,25 @@ void init_symbols()
     unbound = new node;
     unbound->type = symtype;
     unbound->more = new node;
-    unbound->more->symbol_function = unbound;
-    unbound->more->symbol_plist = nil;
-    unbound->more->symbol_name = new node("*unbound*");
-    unbound->symbol_value = unbound;
+    unbound->more->function = unbound;
+    unbound->more->plist = nil;
+    unbound->more->name = new node("*unbound*");
+    unbound->value = unbound;
 
     oblist = new node;
     oblist->type = symtype;
     oblist->more = new node;
-    oblist->more->symbol_function = unbound;
-    oblist->more->symbol_plist = nil;
-    oblist->more->symbol_name = new node("oblist");
-    oblist->symbol_value = new node(oblist, nil);
+    oblist->more->function = unbound;
+    oblist->more->plist = nil;
+    oblist->more->name = new node("oblist");
+    oblist->value = new node(oblist, nil);
 
-    oblist->symbol_value = new node(unbound, oblist->symbol_value);
+    oblist->value = new node(unbound, oblist->value);
 
     pseudo_nil = new node("nil", nil);
 
     t = new node("t", nil);
-    t->more->symbol_value = t;
+    t->more->value = t;
 
     quote = new node("quote", nil);    
     function = new node("function", nil);
@@ -107,14 +73,14 @@ void init_symbols()
 
 node *get_symbol(node *given_name)
     {
-    node *ob = oblist->symbol_value;
+    node *ob = oblist->value;
     node *candidate;
     node *candidate_name;
 
     while(ob != nil)
         {
         candidate = ob->car;
-        candidate_name = candidate->more->symbol_name;
+        candidate_name = candidate->more->name;
         if(cmp_str(given_name, candidate_name))
             {
             return candidate;

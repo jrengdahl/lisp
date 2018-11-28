@@ -1,10 +1,27 @@
+#include <stdio.h>
+#include <ctype.h>
+#include "lispdefs.h"
+#include "io.h"
+
+long int gdec()
+    {
+    if(peekc(stdin) == '-')
+        {
+        getc(stdin);
+        return -gdec();
+        }
+
+    long int n = 0;
+    while(isdigit(peekc(stdin)))
+        {
+        n = n*10 + getc(stdin) - '0';
+        }
+
+    return n;    
+    }
 
 
 #if 0
-gc:    macro
-    jsr getc
-    endm
-#endif
 
 void pushfile(fb *file)
     {
@@ -34,5 +51,5 @@ void popfile()
     }
 
 
-
+#endif
 

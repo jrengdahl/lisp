@@ -22,10 +22,11 @@ node *lisp_read()
         if(c < 0)
             {
             printf("end of input\n");
+            // TODO - handle popping the input
             exit(0);
             }
 
-        else if(c=='\n')
+        else if(c == '\n')
             {
             getc(stdin);
             printf("Lisp>");
@@ -78,24 +79,120 @@ node *lisp_read()
 
                 if(c == ')')break;
 
-                n = new(&nil, &nil);
+                n = new(lisp_read, &nil);
                 if(first == &nil)first = n;
                 else last->cdr = n;
                 last = n;
-                n->car = lisp_read();
                 }
+
+            return first;
+            }
                 
-                
-    cmp.b    #'''',d0
-    beq        rdquote
-    cmp.b    #'`',d0
-    beq        rdbackquote
-    cmp.b    #',',d0
-    beq        rdcomma
-    cmp.b    #'"',d0
-    beq        rdstring
-    cmp.b    #'#',d0
-    beq        rdmacro
+        else if(c == '\'')
+            {
+            getc(stdin);
+            return CONS(&quote, CONS(lisp_read(), NIL));
+            }
+
+        else if(c == '`')
+            {
+            getc(stdin);
+
+            return CONS(&bquote, CONS( CONS(&quote, CONS(lisp_read(), NIL)), NIL));
+            }
+
+        else if(c == ',')
+            {
+            getc(stdin);
+
+            c = peekc(stdin);
+            if(c == '@')
+                {
+                getc(stdin);
+                return CONS(&commaat, CONS(lisp_read(), NIL));
+                }
+            else
+                {
+                return CONS(&comma, CONS(lisp_read(), NIL));
+                }
+            }
+
+        else if(c == '"')
+            {
+            getc(stdin);
+
+            node *first = new node("");
+            node *n;
+            int j;
+
+            for(j=0; j<8; j++)
+                {
+                if(peekc(stdin) == '"')
+                    {
+                    getc(stdin);
+                    return first;
+                    }
+                first->data[j] = getc(stdin);
+                ++first->length;
+                }
+
+            n = new node;
+            first->more = n;
+
+            while(true)
+                {
+                for(j=0; j<16; j++)
+                    {
+                    if(peekc(stdin)=='"')
+                        {
+                        getc(stdin);
+                        return first;
+                        }
+                    n->data[j] = getc(stdin);
+                    ++first->length;
+                    if(first->length > 32768)
+                        {
+                        printf("string greater than 32K\n");
+                        exit(-1);
+                        }
+                    }
+
+                n->next = new node;
+                n = n->next;
+                }
+
+            return first;
+            }
+
+
+        else if(c == '#')
+            {
+            getc(stdin);
+
+            if(peekc(stdin) == '\'')
+                {
+                getc(stdin);
+
+                return CONS(&function, CON(lisp_read(), NIL));
+                }
+            else
+                {
+                return CONS(&pound, CON(lisp_read(), NIL));
+                }
+
+
+        else if(c == '-')
+            {
+            getc(stdin);
+
+            if(!isdigit(peekc(stdin)))
+                {
+                return &minus;
+                }
+            
+
+
+
     cmp.b    #'-',d0
     beq        rdminus
     jsr        isdigit
@@ -141,105 +238,7 @@ rdcom:
     bra    rdret
 
 
-rdquote:
-    gc
-    jsr        lisp_read
-    newnode    a1
-    move.l    #constype*65536,(a1)
-    move.l    d6,cdr(a1)
-    move.l    a0,car(a1)
-    newnode    a0
-    move.l    #constype*65536,(a0)
-    move.l    a1,cdr(a0)
-    xref    quote
-    move.l    quote,car(a0)
-    bra    rdret
 
-rdbackquote:
-    gc
-    jsr        lisp_read
-
-    newnode    a1
-    move.l    #constype*65536,(a1)
-    move.l    d6,cdr(a1)
-    move.l    a0,car(a1)
-
-    newnode    a0
-    move.l    #constype*65536,(a0)
-    move.l    quote,car(a0)
-    move.l    a1,cdr(a0)
-
-    newnode    a1
-    move.l    #constype*65536,(a1)
-    move.l    d6,cdr(a1)
-    move.l    a0,car(a1)
-
-    newnode    a0
-    move.l    #constype*65536,(a0)
-    move.l    a1,cdr(a0)
-    xref    bquote
-    move.l    bquote,car(a0)
-    bra    rdret
-
-rdcomma:
-    xref        cmma,commaat
-    gc
-    jsr        peekc
-    cmp.b    #'@',d0
-    if_ne.s
-        jsr        lisp_read
-        newnode    a1
-        move.l    #constype*65536,(a1)
-        move.l    d6,cdr(a1)
-        move.l    a0,car(a1)
-        newnode    a0
-        move.l    #constype*65536,(a0)
-        move.l    cmma,car(a0)
-        move.l    a1,cdr(a0)
-    else
-        gc
-        jsr        lisp_read
-        newnode    a1
-        move.l    #constype*65536,(a1)
-        move.l    d6,cdr(a1)
-        move.l    a0,car(a1)
-
-        newnode    a0
-        move.l    #constype*65536,(a0)
-        move.l    commaat,car(a0)
-        move.l    a1,cdr(a0)
-    end
-    bra    rdret
-
-    xref    function,pound
-rdmacro:
-    gc
-    jsr        peekc
-    cmp.b    #'''',d0
-    if_eq.s
-        gc
-        jsr    lisp_read
-        newnode    a1
-        move.l    #constype*65536,(a1)
-        move.l    d6,cdr(a1)
-        move.l    a0,car(a1)
-        newnode    a0
-        move.l    #constype*65536,(a0)
-        move.l    function,car(a0)
-        move.l    a1,cdr(a0)
-    else
-        jsr        lisp_read
-        newnode    a1
-        move.l    #constype*65536,(a1)
-        move.l    d6,cdr(a1)
-        move.l    a0,car(a1)
-
-        newnode    a0
-        move.l    #constype*65536,(a0)
-        move.l    pound,car(a0)
-        move.l    a1,cdr(a0)
-    end
-    bra    rdret
 
 
 rdsym:
@@ -252,70 +251,6 @@ rdsym:
         move.l d6,a0
     end
     bra    rdret
-
-rdstring:
-    gc
-    jsr    readstr
-    jsr    peekc
-    cmp.b    #'"',d0
-    if_eq.s
-        gc
-    else
-        message <illegal string termination>
-        signal_error
-    end
-    bra    rdret    
-
-
-readstr:
-    stackcheck readstr
-    pushm.l    d0/d1/d2
-    linkm    a1/a2
-
-    newnode    a0
-    move.l    a0,a2
-    clr.l    4(a0)
-    clr.l    8(a0)
-    lea        str_more(a0),a1
-    move.l    #strtype*65536,(a0)+
-
-    move.w    #4,d1
-    clr.l    d2
-
-    loop
-        jsr peekc
-        cmp.l #-1,d0
-        while_ne
-        cmpi.b #'"',d0
-        while_nz
-
-        tst.w d1
-        if_eq.s
-            move.l d6,a0
-            newnode a0
-            move.l a0,(a1)
-            move.l a0,a1
-            clr.l 4(a0)
-            clr.l 8(a0)
-            clr.l (a0)+    
-            move.w #8,d1
-        end
-    
-        gc
-        move.b d0,(a0)+
-        subq.w #1,d1
-        addq.w #1,d2
-        if_mi
-            message <string greater than 32K>
-            signal_error
-        end
-    end
-
-    move.w    d2,str_length(a2)
-    move.l    a2,a0
-    unlkm    a1/a2
-    popm.l    d0/d1/d2
-    rts
 
 
 readident:

@@ -112,39 +112,28 @@ union node
         type = stringtype;
         length = strlen(string);
 
-        node *n = this;
         int i=0;
         int j;
 
-        for(j=0; j<8 && i<length; i++,j++)
+        for(j=0; j<8; j++,i++)
             {
+            if(i>=length)return;
             data[j] = string[i];
             }
-        if(i>=length)
-            {
-            while(j<8)data[j++] = 0;
-            more = 0;
-            return;
-            }
 
-        more = new node;
-        n = more;
+        node *n = new node;
+        more = n;
 
         while(true)
             {
-            for(j=0; j<16 && i<length; i++,j++)
+            for(j=0; j<16; j++,i++)
                 {
+                if(i>=length)return;
                 n->data[j] = string[i];
                 }
-            if(i>=length)
-                {
-                while(j<16)n->data[j++] = 0;
-                n->next = 0;
-                return;
-                }
-
-            n->more = new node;
-            n = n->more;
+    
+            n->next = new node;
+            n = n->next;
             }
         }
 
@@ -191,6 +180,10 @@ extern node *eval(node *);
 extern void lisp_print(node *);
 
 extern bool cmp_str(node*, node *);
+
+
+#define CONS(l, r) new node(l, r)
+#define NIL &nil
 
 
 #endif // LISPDEFS_H

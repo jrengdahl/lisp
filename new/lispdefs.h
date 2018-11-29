@@ -18,10 +18,25 @@ static const unsigned symtype    = 9;
 
 union node;
 
-extern node *oblist;
 extern node *nil;
+extern node *oblist;
 extern node *t;
+extern node *pseudo_nil;
 extern node *unbound;
+extern node *quote;
+extern node *function;
+extern node *pound;
+extern node *bquote;
+extern node *comma;
+extern node *commaat;
+extern node *minus;
+extern node *rest;
+extern node *opt;
+extern node *aux;
+extern node *lambda;
+extern node *macro;
+extern node *gcverbose;
+extern node *evalhook;
 
 union node
     {
@@ -85,6 +100,7 @@ union node
 
     node() : word0(0), word1(0), word2(0) {}
 
+    // constructor for a cons
     node(node *n1, node *n2) : node()
         {
     	type = constype;
@@ -92,6 +108,7 @@ union node
         cdr = n2;
         }
 
+    // constructor for an integer
     node(int64_t n) : node()
         {
     	type = numtype;
@@ -99,6 +116,7 @@ union node
         denominator = 1;
         }
 
+    // construction for a rational
     node(int64_t n, uint64_t d) : node()
         {
     	type = rattype;
@@ -178,12 +196,11 @@ struct nodeblock
 extern node *lisp_read();
 extern node *eval(node *);
 extern void lisp_print(node *);
-
 extern bool cmp_str(node*, node *);
-
+extern long int gdec();
+extern node *get_symbol(node *name);
 
 #define CONS(l, r) new node(l, r)
-#define NIL &nil
 
 
 #endif // LISPDEFS_H

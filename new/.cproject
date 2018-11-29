@@ -11,30 +11,17 @@
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.autotools.core.ErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration buildProperties="" id="xilinx.gnu.arm.a53.toolchain.585321503" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
+				<configuration buildProperties="" description="" id="xilinx.gnu.arm.a53.toolchain.585321503" name="Default" optionalBuildProperties="" parent="org.eclipse.cdt.build.core.emptycfg">
 					<folderInfo id="xilinx.gnu.arm.a53.toolchain.585321503.487036224" name="/" resourcePath="">
-						<toolChain id="xilinx.gnu.arm.a53.toolchain.181389062" name="Xilinx ARM v8 GNU Toolchain" superClass="xilinx.gnu.arm.a53.toolchain">
-							<targetPlatform binaryParser="com.xilinx.sdk.managedbuilder.XELF.arm.a53" id="xilinx.arm.a53.target.gnu.base.698432468" isAbstract="false" name="Debug Platform" superClass="xilinx.arm.a53.target.gnu.base"/>
-							<builder id="xilinx.gnu.arm.a53.toolchain.builder.932786705" managedBuildOn="false" name="GNU make.Default" superClass="xilinx.gnu.arm.a53.toolchain.builder"/>
-							<tool id="xilinx.gnu.arm.a53.c.toolchain.assembler.1309103294" name="ARM v8 gcc assembler" superClass="xilinx.gnu.arm.a53.c.toolchain.assembler">
-								<inputType id="xilinx.gnu.assembler.input.1797193527" superClass="xilinx.gnu.assembler.input"/>
-							</tool>
-							<tool id="xilinx.gnu.arm.a53.c.toolchain.compiler.395899282" name="ARM v8 gcc compiler" superClass="xilinx.gnu.arm.a53.c.toolchain.compiler"/>
-							<tool id="xilinx.gnu.arm.a53.cxx.toolchain.compiler.1720507011" name="ARM v8 g++ compiler" superClass="xilinx.gnu.arm.a53.cxx.toolchain.compiler">
-								<inputType id="xilinx.gnu.arm.a53.cxx.compiler.input.1919569584" name="C++ source files" superClass="xilinx.gnu.arm.a53.cxx.compiler.input"/>
-							</tool>
-							<tool id="xilinx.gnu.arm.a53.toolchain.archiver.169164880" name="ARM v8 archiver" superClass="xilinx.gnu.arm.a53.toolchain.archiver"/>
-							<tool id="xilinx.gnu.arm.a53.c.toolchain.linker.1945444901" name="ARM v8 gcc linker" superClass="xilinx.gnu.arm.a53.c.toolchain.linker"/>
-							<tool id="xilinx.gnu.arm.a53.cxx.toolchain.linker.357603353" name="ARM v8 g++ linker" superClass="xilinx.gnu.arm.a53.cxx.toolchain.linker">
-								<inputType id="xilinx.gnu.linker.input.101780676" superClass="xilinx.gnu.linker.input">
-									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
-									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
-								</inputType>
-								<inputType id="xilinx.gnu.linker.input.lscript.471416338" name="Linker Script" superClass="xilinx.gnu.linker.input.lscript"/>
-							</tool>
+						<toolChain id="xilinx.gnu.arm.a53.toolchain.181389062" name="Xilinx ARM v8 GNU Toolchain">
+							<targetPlatform binaryParser="com.xilinx.sdk.managedbuilder.XELF.arm.a53" id="xilinx.arm.a53.target.gnu.base.698432468" isAbstract="false" name="Debug Platform"/>
+							<builder id="xilinx.gnu.arm.a53.toolchain.builder.932786705" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="GNU make.Default"/>
 						</toolChain>
 					</folderInfo>
 				</configuration>

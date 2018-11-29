@@ -11,6 +11,7 @@ node *pound;
 node *bquote;
 node *comma;
 node *commaat;
+node *minus;
 node *rest;
 node *opt;
 node *aux;
@@ -56,7 +57,8 @@ void init_symbols()
     bquote = new node("backquote", nil);
     comma = new node("comma", nil);
     commaat = new node("commaat", nil);
-    nil = new node("nil", nil);
+    minus = new node("-", nil);
+    pseudo_nil = new node("nil", nil);
     lambda = new node("lambda", nil);
     macro = new node("macro", nil);
     rest = new node("&rest", nil);

@@ -5,16 +5,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-static const unsigned constype   = 0;
-static const unsigned numtype    = 1;
-static const unsigned rattype    = 2;
-static const unsigned flttype    = 3;
-static const unsigned stringtype = 4;
-static const unsigned arraytype  = 5;
-static const unsigned chartype   = 6;
-static const unsigned primtype   = 7;
-static const unsigned sfuntype   = 8;
-static const unsigned symtype    = 9;
+
+enum TYPE : uint8_t
+    {
+    constype   = 0,
+    numtype    = 1,
+    rattype    = 2,
+    flttype    = 3,
+    stringtype = 4,
+    arraytype  = 5,
+    chartype   = 6,
+    primtype   = 7,
+    sfuntype   = 8,
+    symtype    = 9
+    };
 
 union node;
 
@@ -43,7 +47,7 @@ union node
     struct
         {
         uint8_t flags;
-        uint8_t type;           // cons
+        TYPE type;                  // cons
         uint16_t :16;
         uint32_t length;
         node *car;
@@ -149,7 +153,7 @@ union node
                 if(i>=length)return;
                 n->data[j] = string[i];
                 }
-    
+
             n->next = new node;
             n = n->next;
             }
@@ -169,15 +173,17 @@ union node
         oblist->value = new node(this, oblist->value);
         }
 
-    node(const char *string, node &val) : node()
+
+    // constructor for a symbol, given a name, value, function, and plist
+    node(node *nam, node *val, node *fun, node *pli) : node()
         {
         type = symtype;
 
-   	    value = &val;
+   	    value = val;
         more = new node;
-        more->function = unbound;
-        more->plist = nil;
-        more->name = new node(string);
+        more->function = fun;
+        more->plist = pli;
+        more->name = nam;
 
         oblist->value = new node(this, oblist->value);
         }
@@ -197,7 +203,7 @@ extern node *lisp_read();
 extern node *eval(node *);
 extern void lisp_print(node *);
 extern bool cmp_str(node*, node *);
-extern long int gdec();
+extern long gdec();
 extern node *get_symbol(node *name);
 
 #define CONS(l, r) new node(l, r)

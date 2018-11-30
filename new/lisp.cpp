@@ -4,10 +4,18 @@
 
 extern void init_symbols();
 
+node *foo;
+
 int main(int argc, char **argv)
     {
     init_symbols();
-    lisp_read();
+
+    while(true)
+        {
+        printf("Lisp>");
+        fflush(stdout);
+        foo = lisp_read();
+        }
 
     return 0;
     }

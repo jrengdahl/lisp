@@ -21,18 +21,21 @@ node *readident()
         {
         c = peekc(stdin);
         if(c == -1
-        && c == ' '
-        && c == '"'
-        && c == '\''
-        && c == '`'
-        && c == '('
-        && c == ')'
-        && c == ';'
-        && c == ','
-        && c == '#'
-        && c == '|'
-        && c == ':'
-        && c == '\\')
+        || c == ' '
+        || c == '\t'
+        || c == '\n'
+        || c == '\r'
+        || c == '"'
+        || c == '\''
+        || c == '`'
+        || c == '('
+        || c == ')'
+        || c == ';'
+        || c == ','
+        || c == '#'
+        || c == '|'
+        || c == ':'
+        || c == '\\')
             {
             return first;
             }
@@ -49,18 +52,21 @@ node *readident()
             {
             c = peekc(stdin);
             if(c == -1
-            && c == ' '
-            && c == '"'
-            && c == '\''
-            && c == '`'
-            && c == '('
-            && c == ')'
-            && c == ';'
-            && c == ','
-            && c == '#'
-            && c == '|'
-            && c == ':'
-            && c == '\\')
+            || c == ' '
+            || c == '\t'
+            || c == '\n'
+            || c == '\r'
+            || c == '"'
+            || c == '\''
+            || c == '`'
+            || c == '('
+            || c == ')'
+            || c == ';'
+            || c == ','
+            || c == '#'
+            || c == '|'
+            || c == ':'
+            || c == '\\')
                 {
                 return first;
                 }
@@ -137,7 +143,7 @@ node *lisp_read()
 
             while(true)
                 {
-                node *n;
+                node *elem;
 
                 c=peekc(stdin);
 
@@ -173,15 +179,15 @@ node *lisp_read()
                     return first;
                     }
 
-                n = new node(lisp_read(), nil);
-                if(first == nil)first = n;
-                else last->cdr = n;
-                last = n;
+                elem = new node(lisp_read(), nil);
+                if(first == nil)first = elem;
+                else last->cdr = elem;
+                last = elem;
                 }
 
             return first;
             }
-                
+
 
         else if(c == '\'')
             {
@@ -282,7 +288,7 @@ node *lisp_read()
 
         else if(isdigit(c) || c == '-')
             {
-            unsigned long n;
+            long num;
 
             if( c== '-')
         		{
@@ -293,21 +299,21 @@ node *lisp_read()
         			return minus;
                 	}
 
-        		n = -gdec();
+        		num = -gdec();
         		}
         	else
         		{
-        	    n = gdec();
+        	    num = gdec();
         		}
 
             if(peekc(stdin) == '/')
                 {
                 getc(stdin);
-                return new node(n, gdec());
-                }            
+                return new node(num, gdec());
+                }
             else
                 {
-                return new node(n);
+                return new node(num);
                 }
             }
 

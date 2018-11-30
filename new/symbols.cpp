@@ -51,7 +51,7 @@ void init_symbols()
     t = new node("t", nil);
     t->more->value = t;
 
-    quote = new node("quote", nil);    
+    quote = new node("quote", nil);
     function = new node("function", nil);
     pound = new node("pound", nil);
     bquote = new node("backquote", nil);
@@ -94,7 +94,7 @@ node *get_symbol(node *given_name)
         }
 
     // symbol not found, make new one and add it to the oblist
-    candidate = new node(given_name, unbound);
+    candidate = new node(given_name, unbound, unbound, nil);
 
     return candidate;
     }

@@ -17,7 +17,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration buildProperties="" description="" id="xilinx.gnu.arm.a53.toolchain.585321503" name="Default" optionalBuildProperties="" parent="org.eclipse.cdt.build.core.emptycfg">
+				<configuration buildProperties="" description="" id="xilinx.gnu.arm.a53.toolchain.585321503" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
 					<folderInfo id="xilinx.gnu.arm.a53.toolchain.585321503.487036224" name="/" resourcePath="">
 						<toolChain id="xilinx.gnu.arm.a53.toolchain.181389062" name="Xilinx ARM v8 GNU Toolchain">
 							<targetPlatform binaryParser="com.xilinx.sdk.managedbuilder.XELF.arm.a53" id="xilinx.arm.a53.target.gnu.base.698432468" isAbstract="false" name="Debug Platform"/>

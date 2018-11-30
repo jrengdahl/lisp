@@ -3,7 +3,7 @@
 #include "lispdefs.h"
 #include "io.h"
 
-long int gdec()
+long gdec()
     {
     if(peekc(stdin) == '-')
         {
@@ -11,7 +11,7 @@ long int gdec()
         return -gdec();
         }
 
-    long int n = 0;
+    long n = 0;
     while(isdigit(peekc(stdin)))
         {
         n = n*10 + getc(stdin) - '0';

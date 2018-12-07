@@ -88,7 +88,6 @@ node *readident()
 node *lisp_read()
     {
     int c;
-    node n;
 
     while(true)
         {
@@ -105,8 +104,8 @@ node *lisp_read()
         else if(c == '\n')
             {
             getc(stdin);
-            printf("Lisp>");
-            fflush(stdout);
+            //printf("Lisp>");
+            //fflush(stdout);
             continue;
             }
 
@@ -176,6 +175,14 @@ node *lisp_read()
                         }
 
                     last->cdr = lisp_read();
+
+                    while(isspace(c = getc(stdin)));
+                    if(c != ')')
+                        {
+                        printf("illegal end of dotted list\n");
+                        exit(-1);
+                        }
+
                     return first;
                     }
 
@@ -273,7 +280,47 @@ node *lisp_read()
             {
             getc(stdin);
 
-            if(peekc(stdin) == '\'')
+            if(peekc(stdin) == '\\')
+                {
+                getc(stdin);
+
+                node *n = readident();
+                if(n->length == 1)
+                    {
+                    n->type = chartype;
+                    return n;
+                    }
+                else if(cmp_str(n, "Newline"))
+                    {
+                    return new node('\n');
+                    }
+                else if(cmp_str(n, "Space"))
+                    {
+                    return new node(' ');
+                    }
+                else if(cmp_str(n, "Tab"))
+                    {
+                    return new node('\t');
+                    }
+                else if(cmp_str(n, "Linefeed"))
+                    {
+                    return new node('\n');
+                    }
+                else if(cmp_str(n, "Return"))
+                    {
+                    return new node('\r');
+                    }
+                else if(cmp_str(n, "Backspace"))
+                    {
+                    return new node('\b');
+                    }
+                else
+                    {
+                    printf("illegal character name\n");
+                    exit(-1);
+                    }
+                }
+            else if(peekc(stdin) == '\'')
                 {
                 getc(stdin);
 

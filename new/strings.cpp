@@ -16,5 +16,31 @@ bool cmp_str(node *left, node *right)
         right = right->next;
         }
     }
-                
+
+
+bool cmp_str(node *left, const char *right)
+    {
+    int len = left->length;
+    node *next = left->more;
+    char *p = &left->data[0];
+    int rem = 8;
+
+    while(len>0)
+        {
+        if(rem<=0)
+            {
+            left = next;
+            next = left->next;
+            p = &left->data[0];
+            rem = 16;
+            }
+
+        if(*p++ != *right++)return false;
+        --len;
+        --rem;
+        }
+
+    return *right == 0;
+    }
+
 

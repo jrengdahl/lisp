@@ -39,7 +39,7 @@ void print_string(node *n)
 
     while(length)
         {
-        if(nlen = 0)
+        if(nlen == 0)
             {
             n = next;
             next = n->next;
@@ -48,7 +48,7 @@ void print_string(node *n)
             }
         printf("%c", *p++);
         --length;
-        --nlen
+        --nlen;
         }
     }
 
@@ -87,13 +87,13 @@ void lprint(node *n)
         break;
 
     case chartype:
-        if(n->char_data <= ' ')
+        if(n->data[0] <= ' ')
             {
-            printf("#\\%x", n->char_data);
+            printf("#\\%x", n->data[0]);
             }
         else
             {
-            printf("#\\%c", n->char_data);
+            printf("#\\%c", n->data[0]);
             }
         break;
 
@@ -110,7 +110,7 @@ void lprint(node *n)
         break;
 
     case symtype:
-        printf_string(n->more->name);
+        print_string(n->more->name);
         break;
 
     default:
@@ -120,10 +120,10 @@ void lprint(node *n)
     }
 
 
-void lisp_printf(node *n)
+void lisp_print(node *n)
     {
     lprint(n);
-    print("\n");
+    printf("\n");
     }
 
 
@@ -133,8 +133,8 @@ void lprin1(node *n)
     fflush(stdout);
     }
 
-vod terpri()
+void terpri()
     {
-    print("\n");
+    printf("\n");
     }
 

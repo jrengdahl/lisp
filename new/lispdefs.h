@@ -81,13 +81,6 @@ union node
         char data[16];
         };
 
-    struct                          // char
-        {
-        uint64_t : 64;
-        uint64_t char_data;
-        uint64_t attr;
-        };
-
     struct                          // primitive
         {
         uint64_t : 64;
@@ -126,6 +119,13 @@ union node
     	type = rattype;
         numerator = n;
         denominator = d;
+        }
+
+    // constructor for an character
+    node(char c) : node()
+        {
+        type = chartype;
+        data[0] = c;
         }
 
     // constructor for a string
@@ -203,6 +203,7 @@ extern node *lisp_read();
 extern node *eval(node *);
 extern void lisp_print(node *);
 extern bool cmp_str(node*, node *);
+extern bool cmp_str(node *left, const char *right);
 extern long gdec();
 extern node *get_symbol(node *name);
 

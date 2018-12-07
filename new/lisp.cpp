@@ -15,6 +15,7 @@ int main(int argc, char **argv)
         printf("Lisp>");
         fflush(stdout);
         foo = lisp_read();
+        lisp_print(foo);
         }
 
     return 0;

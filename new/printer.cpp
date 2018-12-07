@@ -32,35 +32,26 @@ void pcons(node *n)
 
 void print_string(node *n)
     {
-print_string:
-	stackcheck print_string
-	pushm.l	d0/d1/d2/a0/a1
+    unsigned length = n->length;    // length of the string
+    char *p = &n->data[0];          // pointer to the string characters
+    node *next = n->more;           // pointer to the next block in the chain
+    unsigned nlen = 8;              // max number of chars in this node
 
-	move.l	str_more(a0),a1
-	move.l	(a0)+,d1
-	move.w	#4,d2
-
-	loop
-		tst.w d1
-		while_nz
-
-		tst.w d2
-		if_z.s
-			move.l a1,a0
-			move.l (a0)+,a1
-			move.w #8,d2
-		end
-
-		move.b (a0)+,d0
-		jsr putc
-		subq.w #1,d1
-		subq.w #1,d2
-	end
-
-	popm.l d0/d1/d2/a0/a1
-	rts
-
+    while(length)
+        {
+        if(nlen = 0)
+            {
+            n = next;
+            next = n->next;
+            p = &n->data[0];
+            nlen = 16;
+            }
+        printf("%c", *p++);
+        --length;
+        --nlen
+        }
     }
+
 
 
 void lprint(node *n)
@@ -77,15 +68,15 @@ void lprint(node *n)
         break;
 
     case numtype:
-        printf("%ld", n->numerator)
+        printf("%ld", n->numerator);
         break;
 
     case rattype:
         // reduce(n);
-        printf("%ld", n->numerator)
+        printf("%ld", n->numerator);
         if(n->denominator != 1)
             {
-            printf("/%lu", n->denominator)
+            printf("/%lu", n->denominator);
             }
         break;
 
@@ -119,7 +110,7 @@ void lprint(node *n)
         break;
 
     case symtype:
-        
+        printf_string(n->more->name);
         break;
 
     default:
@@ -129,47 +120,21 @@ void lprint(node *n)
     }
 
 
+void lisp_printf(node *n)
+    {
+    lprint(n);
+    print("\n");
+    }
 
 
-	xdef		lisp_print
+void lprin1(node *n)
+    {
+    lprint(n);
+    fflush(stdout);
+    }
 
-lisp_print:
-	jsr		lprint
-	newline
-	rts
+vod terpri()
+    {
+    print("\n");
+    }
 
-.lprint:
-	move.l	car(a1),a0
-	jsr	lisp_print
-	unlkm	a1-a5
-	rts
-
-.lprin1:
-	move.l	car(a1),a0
-	jsr	lprint
-	jsr	flushout
-	unlkm	a1-a5
-	rts
-
-.lprinc:
-	move.l	car(a1),a0
-	jsr	lprinc
-	jsr	flushout
-	unlkm	a1-a5
-	rts
-
-terpri:
-	newline
-	move.l d6,a0
-	unlkm	a1-a5
-	rts
-
-	xdef	init_printer
-init_printer:
-	primitive print,.lprint
-	primitive prin1,.lprin1
-	primitive princ,.lprinc
-	primitive terpri,terpri
-	rts
-
-	end

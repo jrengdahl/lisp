@@ -6,24 +6,25 @@
 #include "io.h"
 
 
+// eval a node, which could be anything
 
 node *eval(node *n)
     {
     switch(n->type)
         {
     case constype:
-        return evalfun(n);
+        return evalfun(n);                  // a list is a function call, go interpret it
 
-    case numtype:
+    case symtype:                           // a symbol evaluates to its value
+        return n->value;
+
+    case numtype:                           // anything else evaluates to itself
     case rattype:
     case stringtype:
     case chartype:
     case primtype:
     case sfuntype:
         return n;
-
-    case symtype:
-        return n->value;
 
     default:
         printf("unknown node type in eval\n");
@@ -32,28 +33,43 @@ node *eval(node *n)
     }
 
 
+// mapcar 'eval to each member of a list, and return the result. Used to process
 node *evalargs(node *args)
     {
-    if(args == nil)return nil;
+    if(args == nil)return nil;                              // if input is nil return nil
 
     node *first;
     node *last;
 
-    first = new node(eval(args->car), nil);
+    first = new node(eval(args->car), nil);                 // eval the first arg and make the result the initial list member
     last = first;
     args = args->cdr;
 
-    while(args != nil)
+    while(args != nil)                                      // for any other args
         {
-        last->cdr = new node(eval(args->car), nil);
+        last->cdr = new node(eval(args->car), nil);         // eval and add the result to the end of the list
         last = last->cdr;
         args = args->cdr;
         }
     
-    return first;
+    return first;                                           // return the list
     }
 
 
+node *evalfun(node *n)
+    {
+    if(evalhook != nil)
+        {
+		node *tmp;
+		tmp = evalhook;
+		n = hookfun(n);
+		evalhook = tmp;
+        return n;
+        }
+    else return nhook(n);
+    }
+
+// evaluate a form after (or without) evalhook processing
 node *nhook(node form)
     {
     node *func;
@@ -63,20 +79,20 @@ node *nhook(node form)
 
     // TODO stackcheck
 
-    func = form->car;
+    func = form->car;                                                   // the car is the function, and the cdr is the arglist (fun arg0, arg1, arg...) e.g. (+ 1 2)
     args = form->cdr;
 
-    if(func->type == symtype)
+    if(func->type == symtype)                                           // if the function is a symbol, 
         {
-        func = func->more->function;
-        if(func->type == constype)
+        func = func->more->function;                                    // get the symbol-function
+        if(func->type == constype)                                      // if it's a list drop through and handle it the same as a lambda
             {   // lambmacro
             }
-        else if(func->type == primtype)
+        else if(func->type == primtype)                                 // if it's a primitive
             {   // evprim
-            return (*func->primitive)(evalargs(args));
+            return (*func->primitive)(evalargs(args));                  // eval the args and call the primitive
             }
-        else if(func->type == sfuntype)
+        else if(func->type == sfuntype)                                 // if its a special form handle it similarly, except do not eval the args, pass them raw
             {
             return (*func->primitive)(args);
             }
@@ -86,13 +102,13 @@ node *nhook(node form)
             }
         }
 
-    if(func->type == constype)
+    if(func->type == constype)                                          // handle a lambda or macro expression
         {
-        if(func->car == lambda)
+        if(func->car == lambda)                                         // for a lambda list
             {
-            return interpreter(evalargs(args), func->cdr);
+            return interpreter(evalargs(args), func->cdr);              // eval the args then call the interpreter
             }
-        else if(func->car == macro)
+        else if(func->car == macro)                                     // handle a macro the same, except do not eval the args, just pass them raw
             {
             return eval(interpreter(args, func->cdr));
             }
@@ -107,24 +123,7 @@ node *nhook(node form)
         }
     }
     
-
-
-
-
     
-
-node *evalfun(node *n)
-    {
-    if(evalhook != nil)
-        {
-		node *tmp;
-		tmp = evalhook;
-		n = hookfun(n);
-		evalhook = tmp;
-        return n;
-        }
-    else return nhook(n);
-    }
 
 
 evalfun:

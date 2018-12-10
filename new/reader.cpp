@@ -74,8 +74,7 @@ node *readident()
             ++first->length;
             if(first->length > 32768)
                 {
-                printf("string greater than 32K\n");
-                exit(-1);
+                signal_error("string greater than 32K");
                 }
             }
 
@@ -154,8 +153,7 @@ node *lisp_read()
 
                 if(c < 0)
                     {
-                    printf("unexpected end of input\n");
-                    exit(0);
+                    signal_error("unexpected end of input");
                     }
 
                 if(c == ')')
@@ -179,8 +177,7 @@ node *lisp_read()
                     while(isspace(c = getc(stdin)));
                     if(c != ')')
                         {
-                        printf("illegal end of dotted list\n");
-                        exit(-1);
+                        signal_error("illegal end of dotted list");
                         }
 
                     return first;
@@ -263,8 +260,7 @@ node *lisp_read()
                     ++first->length;
                     if(first->length > 32768)
                         {
-                        printf("string greater than 32K\n");
-                        exit(-1);
+                        signal_error("string greater than 32K");
                         }
                     }
 
@@ -316,8 +312,7 @@ node *lisp_read()
                     }
                 else
                     {
-                    printf("illegal character name\n");
-                    exit(-1);
+                    signal_error("illegal character name");
                     }
                 }
             else if(peekc(stdin) == '\'')

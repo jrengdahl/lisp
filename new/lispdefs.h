@@ -199,6 +199,13 @@ struct nodeblock
     node nodes[NODES_PER_BLOCK];
     };
 
+
+void signal_error(const char *msg)
+    {
+    printf("%s\n", msg);
+    exit(-1);
+    }
+
 extern node *lisp_read();
 extern node *eval(node *);
 extern void lisp_print(node *);

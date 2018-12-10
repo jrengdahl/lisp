@@ -114,8 +114,7 @@ void lprint(node *n)
         break;
 
     default:
-        printf("unknown node type in lprint\n");
-        exit(-1);
+        signal_error("unknown node type in lprint");
         }
     }
 

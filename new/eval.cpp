@@ -23,7 +23,7 @@ node *eval(node *n)
         return n;
 
     case symtype:
-        return n->symbol_value;
+        return n->value;
 
     default:
         printf("unknown node type in eval\n");
@@ -32,46 +32,100 @@ node *eval(node *n)
     }
 
 
+node *evalargs(node *args)
+    {
+    if(args == nil)return nil;
+
+    node *first;
+    node *last;
+
+    first = new node(eval(args->car), nil);
+    last = first;
+    args = args->cdr;
+
+    while(args != nil)
+        {
+        last->cdr = new node(eval(args->car), nil);
+        last = last->cdr;
+        args = args->cdr;
+        }
+    
+    return first;
+    }
 
 
-	IDNT		evaluator
+node *nhook(node form)
+    {
+    node *func;
+    node *args;
 
-	include	'common/hdr.i'
-	include	'common/io.i'
-	include	'lisp/lispdefs.i'
-	include	'lisp/lispmacros.i'
+    if(form == nil)return nil;
 
-	.code
+    // TODO stackcheck
 
-;d0
-;d1
-;d2
-;d3
-;d4
-;d5 
-;d6 points to nil
-;d7 freenode list
-;a0
-;a1 
-;a2 
-;a3 
-;a4 
-;a5 
-;a6 library pointer/frame pointer
-;a7 stack pointer
+    func = form->car;
+    args = form->cdr;
 
-	xref 	interpreter,lisp_print,evalhook
-	xref		lambda,xmacro
-	xdef		evalfun
+    if(func->type == symtype)
+        {
+        func = func->more->function;
+        if(func->type == constype)
+            {   // lambmacro
+            }
+        else if(func->type == primtype)
+            {   // evprim
+            return (*func->primitive)(evalargs(args));
+            }
+        else if(func->type == sfuntype)
+            {
+            return (*func->primitive)(args);
+            }
+        else    
+            {   // notfun
+            signal_error("attempt to apply a data object to args");
+            }
+        }
+
+    if(func->type == constype)
+        {
+        if(func->car == lambda)
+            {
+            return interpreter(evalargs(args), func->cdr);
+            }
+        else if(func->car == macro)
+            {
+            return eval(interpreter(args, func->cdr));
+            }
+        else
+            {
+            signal_error("car of lambda list must be lambda or macro");
+            }
+        }
+    else
+        {
+        signal_error("function must be a symbol or lambda list");
+        }
+    }
+    
 
 
-hookjp:	jmp hook
 
-xret:
-	rts
 
-	xref stackbot,stackovfl
-stkov: jsr stackovfl
+    
+
+node *evalfun(node *n)
+    {
+    if(evalhook != nil)
+        {
+		node *tmp;
+		tmp = evalhook;
+		n = hookfun(n);
+		evalhook = tmp;
+        return n;
+        }
+    else return nhook(n);
+    }
+
 
 evalfun:
 	cmp.l	evalhook,d6	;check for evalhook active
@@ -85,14 +139,24 @@ nhook:	cmp.l	d6,a0		;check for nil
 
 	linkm	a1-a5
 
+;a0 form
+
 	move.l	cdr(a0),a1		;put arglist in a1
 	move.l	car(a0),a0		;get first item of list
+
+; a1 cdr of form = arglist
+; a0 car of form
 
 	cmpi.w	#symtype,(a0) 		;it must be a symbol
 	bne.s	evlis
 
+;a0 car of form is symbol
+
 	move.l	sym_more(a0),a0		;get symbol-function
 	move.l	(a0),a2			;
+
+;a1 arglist
+;a2 symbol-function
 
 	move.w	(a2),d0
 	jmp		funtab(d0.w)
@@ -170,8 +234,16 @@ eval_macro:
 	jmp		interpreter
 
  
+;a1 arglist
+;a2 symbol-function
+
 lambmacro:
 	follow a2,a0
+
+;a0 car of function
+;a1 arglist
+;a2 cdr of function
+
 	cmp.l lambda,a0
 	if_ne
 		cmp.l xmacro,a0
@@ -184,6 +256,10 @@ lambmacro:
 		unlkm	a1-a5	
 		rts
 	end
+
+
+;a1 arglist
+;a2 cdr of function
 
 	cmp.l d6,a1
 	if_ne

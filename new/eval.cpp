@@ -6,32 +6,6 @@
 #include "io.h"
 
 
-// eval a node, which could be anything
-
-node *eval(node *n)
-    {
-    switch(n->type)
-        {
-    case constype:
-        return evalfun(n);                  // a list is a function call, go interpret it
-
-    case symtype:                           // a symbol evaluates to its value
-        return n->value;
-
-    case numtype:                           // anything else evaluates to itself
-    case rattype:
-    case stringtype:
-    case chartype:
-    case primtype:
-    case sfuntype:
-        return n;
-
-    default:
-        printf("unknown node type in eval\n");
-        exit(-1);
-        }
-    }
-
 
 // mapcar 'eval to each member of a list, and return the result. Used to process
 node *evalargs(node *args)
@@ -58,29 +32,43 @@ node *evalargs(node *args)
 
 node *evalfun(node *n)
     {
-    if(evalhook != nil)
+    if(n == nil)return nil;
+
+    if(evalhook == nil) return nhook(n);
+
+    node *tmp = evalhook;
+    node *func = evalhook;
+    node args = CONS(n, CONS(nil, nil));
+    evalhook = nil;
+
+    if(func->type == symtype)
         {
-		node *tmp;
-		tmp = evalhook;
-		n = hookfun(n);
-		evalhook = tmp;
-        return n;
+        func = func->more->function;
         }
-    else return nhook(n);
+    if(func->type == constype
+    && func->car == lambda)
+        {
+        return interpreter(func->cdr, args);
+        }
+    else if(func->type == primtype)
+        {
+        return (*func->primitive)(args);
+        }
+    else signal_error("attempt to apply a non-function object to args");
+
+    evalhook = tmp;
+    return n;
     }
 
 // evaluate a form after (or without) evalhook processing
 node *nhook(node form)
     {
-    node *func;
-    node *args;
-
     if(form == nil)return nil;
 
     // TODO stackcheck
 
-    func = form->car;                                                   // the car is the function, and the cdr is the arglist (fun arg0, arg1, arg...) e.g. (+ 1 2)
-    args = form->cdr;
+    node *func = form->car;                                             // the car is the function, and the cdr is the arglist (fun arg0, arg1, arg...) e.g. (+ 1 2)
+    node *args = form->cdr;
 
     if(func->type == symtype)                                           // if the function is a symbol, 
         {
@@ -123,346 +111,149 @@ node *nhook(node form)
         }
     }
     
-    
+// (macroexpand form) will expand the macro call and return the expansion
+node *macroexpand(node *form)
+    {
+    node *func = form->car;
+    node *args = form->cdr;
+
+    if(func->type != symtype)
+        {
+        signal_error("macro name must be a symbol");
+        }
+
+    func = func->more->function;
+    if(func->type != constype)
+        {
+        signal_error("macro must be a macro-form");
+        }
+
+    if(func->car != macro)
+        {
+        signal_error("car of macro function must be the symbol macro");
+        }
+
+    return interpreter(args, func->cdr);
+    }
+
+// (funcall fn a1 a2 ... an) applies the function fn to the arguments a1, a2, ..., an.
+node *funcall(node *args)
+    {
+    node *func = args->car;
+    args = args->cdr;
+    if(func->type == symtype)
+        {
+        func = func->more->function;
+        }
+    if(func->type == constype
+    && func->car == lambda)
+        {
+        return interpreter(func->cdr, args);
+        }
+    else if(func->type == primtype)
+        {
+        return (*func->primitive)(args);
+        }
+    else signal_error("attempt to apply a non-function object to args");
+    }
 
 
-evalfun:
-	cmp.l	evalhook,d6	;check for evalhook active
-	bne.s	hookjp
-
-nhook:	cmp.l	d6,a0		;check for nil
-	beq.s	xret
-
-	cmp.l	stackbot,sp
-	blt.s	stkov
-
-	linkm	a1-a5
-
-;a0 form
-
-	move.l	cdr(a0),a1		;put arglist in a1
-	move.l	car(a0),a0		;get first item of list
-
-; a1 cdr of form = arglist
-; a0 car of form
-
-	cmpi.w	#symtype,(a0) 		;it must be a symbol
-	bne.s	evlis
-
-;a0 car of form is symbol
-
-	move.l	sym_more(a0),a0		;get symbol-function
-	move.l	(a0),a2			;
-
-;a1 arglist
-;a2 symbol-function
-
-	move.w	(a2),d0
-	jmp		funtab(d0.w)
+// (apply fun a1 a2 a3 ... an) applies the function to (a1 a2 a3 . an)
+// TODO this is an abbreviated apply, which only takes one arg
+// which is the most useful form: (apply fn '(a1 a2 a3) is like (fn a1 a2 a3)
+node *apply(node *n)
+    {
+    node *func = n->car;
+    node args = n->cdr->car;
+    if(func->type == symtype)
+        {
+        func = func->more->function;
+        }
+    if(func->type == constype
+    && func->car == lambda)
+        {
+        return interpreter(func->cdr, args);
+        }
+    else if(func->type == primtype)
+        {
+        return (*func->primitive)(args);
+        }
+    else signal_error("attempt to apply a non-function object to args");
+    }
 
 
-evlis:
-	move.l a0,a2
-	cmpi.w #constype,(a0)	;or a lambda list
-	beq lambmacro
-	message <;function must be a symbol or lambda list>
-	signal_error
- 
+// eval a node, which could be anything
+node *eval(node *n)
+    {
+    switch(n->type)
+        {
+    case constype:
+        return evalfun(n);                  // a list is a function call, go interpret it
 
-funtab:
-	bra.l		lambmacro
-	nop
-	nop
-	bra.l		notfun
-	nop
-	nop
-	bra.l		notfun
-	nop
-	nop
-	bra.l		notfun
-	nop
-	nop
-	bra.l		notfun
-	nop
-	nop
-	bra.l		notfun
-	nop
-	nop
-	bra.l		notfun
-	nop
-	nop
-	bra.l		evprim
-	nop
-	nop
-	push.l		prim_addr(a2)	;jsr to function without leaving
-	rts				;junk in a register
-	nop
-	bra.l		notfun
+    case symtype:                           // a symbol evaluates to its value
+        return n->value;
 
-macroexpand:
-	move.l	car(a1),a1		;get first arg, the macro form
-	follow	a1,a0			;get the first element of list
+    case numtype:                           // anything else evaluates to itself
+    case rattype:
+    case stringtype:
+    case chartype:
+    case primtype:
+    case sfuntype:
+        return n;
 
-	cmpi.w	#symtype,(a0) 		;it must be a symbol
-	if_ne.s
-		message <;macro name must be a symbol>
-		signal_error
-	end
-
-	move.l	sym_more(a0),a0	;get symbol-function
-	move.l	(a0),a2			;
-
-	cmp.w	#constype,(a2)
-	if_ne.s
-		message <;macro must be a macro-form>
-		signal_error
-	end
-
-	follow a2,a0
-	cmp.l xmacro,a0
-	if_ne.s
-		message <;car of macro function must be macro>
-		signal_error
-	end	
-
-	jmp	interpreter
+    default:
+        signal_error("unknown node type in eval\n");
+        }
+    }
 
 
-eval_macro:
-	linkm	a1-a5
-	jmp		interpreter
+node *evalprim(node *n)
+    {
+    return eval(n->car);
+    }
 
- 
-;a1 arglist
-;a2 symbol-function
+// (evalhook form evalhookfn) the form is evaluated with *evalhook* bound to evalhookfn
 
-lambmacro:
-	follow a2,a0
+node *evalhookprim(node *args)
+    {
+    node *retval;
+    node *tmp = evalhook;
+    evalhook = args->cdr->car;
 
-;a0 car of function
-;a1 arglist
-;a2 cdr of function
+    node n = args->car;
+    switch(n->type)
+        {
+    case constype:
+        retval = nhook(n);                  // a list is a function call, go interpret it (without evalhook processing)
+        break;
 
-	cmp.l lambda,a0
-	if_ne
-		cmp.l xmacro,a0
-		if_ne.s
-			message <;car of lambda list must be lambda or macro>
-			signal_error
-		end
-		jsr	eval_macro
-		eval
-		unlkm	a1-a5	
-		rts
-	end
+    case symtype:                           // a symbol evaluates to its value
+        retval = n->value;
+        break;
 
+    case numtype:                           // anything else evaluates to itself
+    case rattype:
+    case stringtype:
+    case chartype:
+    case primtype:
+    case sfuntype:
+        retval = n;
+        break;
 
-;a1 arglist
-;a2 cdr of function
+    default:
+        signal_error("unknown node type in evalhook\n");
+        }
 
-	cmp.l d6,a1
-	if_ne
-		move.l a1,a3
-		follow a3,a0
-		eval
-		newnode a1
-		clr.l (a1)
-		move.l a0,car(a1)
-		move.l d6,cdr(a1)
-		move.l a1,a5
- 
-		loop
-			cmp.l d6,a3
-			while_ne
-	
-			follow a3,a0
-			eval
- 			newnode a4
-			clr.l (a4)	
-			move.l a0,car(a4)
-			move.l d6,cdr(a4)
-			move.l a4,cdr(a5)
-			move.l a4,a5
-		end
-	end
-	jmp interpreter
-
-evprim:
-	cmp.l d6,a1
-	if_ne
-		move.l a1,a3
-		follow a3,a0
-		eval
-		newnode a1
-		clr.l (a1)
-		move.l a0,car(a1)
-		move.l d6,cdr(a1)
-		move.l a1,a5
- 
-		loop
-			cmp.l d6,a3
-			while_ne
-	
-			follow a3,a0
-			eval
- 			newnode a4
-			clr.l (a4)	
-			move.l a0,car(a4)
-			move.l d6,cdr(a4)
-			move.l a4,cdr(a5)
-			move.l a4,a5
-		end
-	end
-	push.l	prim_addr(a2)		;jsr to function without leaving
-	rts				;junk in a register
-
-;a later optimization will use a jump through a0, and
-;all primitives will copy d6 to a0. Each primitive will also
-;do the popm and rts.
-
-funcall:
-	follow	a1,a2
-	cmpi.w	#symtype,(a2)
-	if_eq.s
-		move.l sym_more(a2),a2
-		move.l (a2),a2
-	end
-	move.w	(a2),a0
-	jmp		aptab(a0.w)
-
-	xdef int_apply
-apply:
-	follow	a1,a2
-	move.l	car(a1),a1
-int_apply:
-	cmpi.w	#symtype,(a2)
-	if_eq.s
-		move.l sym_more(a2),a2
-		move.l (a2),a2
-	end
-	move.w	(a2),a0
-	jmp		aptab(a0.w)
-
-aptab:
-	bra.l		apcons
-	nop
-	nop
-	bra.l		apint
-	nop
-	nop
-	bra.l		aprat
-	nop
-	nop
-	bra.l		apfloat
-	nop
-	nop
-	bra.l		apstring
-	nop
-	nop
-	bra.l		aparray
-	nop
-	nop
-	bra.l		apchar
-	nop
-	nop
-	push.l		prim_addr(a2)	;jsr to function without leaving
-	rts				;junk in a register
-	nop
-	bra.l		apsfun
-	nop
-	nop
-	bra.l		apsym
-	
-apint:
-aprat:
-apfloat:
-apstring:
-apchar:
-aparray:
-apsym:
-notfun:
-	message <;attempt to apply a data object to args>
-	signal_error
-
-apsfun:
-	message <;attempt to apply special form to args>
-	signal_error
+    evalhook = tmp;
+    return retval;
+    }
 
 
-
-;a1 = args
-;a2 = symbol-function
-
-apcons:
-	follow	a2,a0	
-	jmp		interpreter
- 
-
-.eval:
-	move.l car(a1),a0
-	eval
-	unlkm a1-a5
-	rts
-
-
-.evalhook:
-	follow	a1,a0			;get form to be evaluated
-
-	move.l	evalhook,a2		;rebind evalhook
-	move.l	car(a1),evalhook
-
-	tst.w	(a0)			;if its a list
-	if_eq.s	
-		jsr nhook		;bypass the hook
-	else
-		eval			;else the eval can't be hooked
-	end
-
-	move.l a2,evalhook		;replace evalhook
-
-	unlkm a1-a5
-	rts
-		
-
-hook:
-	push.l evalhook
-	jsr hookfun
-	pop.l evalhook
-	rts
-
-hookfun:
-	cmp.l	d6,a0		;check for nil
-	beq	xret
-
-	cmp.l	stackbot,sp
-	blt	stkov
-
-	linkm	a1-a5
-
-	newnode a2
-	clr.l (a2)
-	move.l d6,car(a2)
-	move.l d6,cdr(a2)
-
-	newnode a1
-	clr.l (a1)
-	move.l a0,car(a1)
-	move.l a2,cdr(a1)
-
-	move.l evalhook,a2
-	move.l d6,evalhook
-
-	jmp int_apply
-
-
-
-	xdef	init_evaluator
-init_evaluator:
-	primitive eval,.eval
-	primitive apply
-	primitive funcall
-	primitive macroexpand
-	primitive evalhook,.evalhook
-	rts
-
-	end
+void init_evaluator()
+    {
+    primitive("eval", evalprim);
+    primitive("apply", apply);
+    primitive("funcall", funcall);
+    primitive("macroexpand", macroexpand);
+    primitive("evalhook", evalhook);
+    }

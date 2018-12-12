@@ -6,6 +6,8 @@
 #include "io.h"
 
 
+static node *nhook(node *);
+
 
 // mapcar 'eval to each member of a list, and return the result. Used to process
 node *evalargs(node *args)
@@ -25,7 +27,7 @@ node *evalargs(node *args)
         last = last->cdr;
         args = args->cdr;
         }
-    
+
     return first;                                           // return the list
     }
 
@@ -34,11 +36,11 @@ node *evalfun(node *n)
     {
     if(n == nil)return nil;
 
-    if(evalhook == nil) return nhook(n);
+    if(evalhook->value == nil) return nhook(n);
 
     node *tmp = evalhook;
     node *func = evalhook;
-    node args = CONS(n, CONS(nil, nil));
+    node *args = CONS(n, CONS(nil, nil));
     evalhook = nil;
 
     if(func->type == symtype)
@@ -48,7 +50,7 @@ node *evalfun(node *n)
     if(func->type == constype
     && func->car == lambda)
         {
-        return interpreter(func->cdr, args);
+        return interpreter(func, args);
         }
     else if(func->type == primtype)
         {
@@ -61,7 +63,7 @@ node *evalfun(node *n)
     }
 
 // evaluate a form after (or without) evalhook processing
-node *nhook(node form)
+node *nhook(node *form)
     {
     if(form == nil)return nil;
 
@@ -70,7 +72,7 @@ node *nhook(node form)
     node *func = form->car;                                             // the car is the function, and the cdr is the arglist (fun arg0, arg1, arg...) e.g. (+ 1 2)
     node *args = form->cdr;
 
-    if(func->type == symtype)                                           // if the function is a symbol, 
+    if(func->type == symtype)                                           // if the function is a symbol,
         {
         func = func->more->function;                                    // get the symbol-function
         if(func->type == constype)                                      // if it's a list drop through and handle it the same as a lambda
@@ -84,7 +86,7 @@ node *nhook(node form)
             {
             return (*func->primitive)(args);
             }
-        else    
+        else
             {   // notfun
             signal_error("attempt to apply a data object to args");
             }
@@ -94,11 +96,11 @@ node *nhook(node form)
         {
         if(func->car == lambda)                                         // for a lambda list
             {
-            return interpreter(evalargs(args), func->cdr);              // eval the args then call the interpreter
+            return interpreter(func, evalargs(args));                   // eval the args then call the interpreter
             }
         else if(func->car == macro)                                     // handle a macro the same, except do not eval the args, just pass them raw
             {
-            return eval(interpreter(args, func->cdr));
+            return eval(interpreter(func, args));
             }
         else
             {
@@ -110,7 +112,7 @@ node *nhook(node form)
         signal_error("function must be a symbol or lambda list");
         }
     }
-    
+
 // (macroexpand form) will expand the macro call and return the expansion
 node *macroexpand(node *form)
     {
@@ -133,7 +135,7 @@ node *macroexpand(node *form)
         signal_error("car of macro function must be the symbol macro");
         }
 
-    return interpreter(args, func->cdr);
+    return interpreter(func, args);
     }
 
 // (funcall fn a1 a2 ... an) applies the function fn to the arguments a1, a2, ..., an.
@@ -148,7 +150,7 @@ node *funcall(node *args)
     if(func->type == constype
     && func->car == lambda)
         {
-        return interpreter(func->cdr, args);
+        return interpreter(func, args);
         }
     else if(func->type == primtype)
         {
@@ -164,7 +166,7 @@ node *funcall(node *args)
 node *apply(node *n)
     {
     node *func = n->car;
-    node args = n->cdr->car;
+    node *args = n->cdr->car;
     if(func->type == symtype)
         {
         func = func->more->function;
@@ -172,7 +174,7 @@ node *apply(node *n)
     if(func->type == constype
     && func->car == lambda)
         {
-        return interpreter(func->cdr, args);
+        return interpreter(func, args);
         }
     else if(func->type == primtype)
         {
@@ -220,7 +222,7 @@ node *evalhookprim(node *args)
     node *tmp = evalhook;
     evalhook = args->cdr->car;
 
-    node n = args->car;
+    node *n = args->car;
     switch(n->type)
         {
     case constype:
@@ -255,5 +257,5 @@ void init_evaluator()
     primitive("apply", apply);
     primitive("funcall", funcall);
     primitive("macroexpand", macroexpand);
-    primitive("evalhook", evalhook);
+    primitive("evalhook", evalhookprim);
     }

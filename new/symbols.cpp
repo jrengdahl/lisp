@@ -13,13 +13,18 @@ node *comma;
 node *commaat;
 node *minus;
 node *rest;
-node *opt;
+node *optional;
 node *aux;
 node *lambda;
 node *macro;
 node *gcverbose;
 node *evalhook;
 
+
+node *unboundfunc(node *)
+    {
+    signal_error("unbound function");
+    }
 
 void init_symbols()
     {
@@ -31,7 +36,7 @@ void init_symbols()
     unbound = new node;
     unbound->type = symtype;
     unbound->more = new node;
-    unbound->more->function = unbound;
+    unbound->more->function = unboundfunc;
     unbound->more->plist = nil;
     unbound->more->name = new node("*unbound*");
     unbound->value = unbound;
@@ -51,7 +56,7 @@ void init_symbols()
     t = new node("t", nil);
     t->more->value = t;
 
-    quote = new node("quote", nil);
+    // quote = new node("quote", nil);
     function = new node("function", nil);
     pound = new node("pound", nil);
     bquote = new node("backquote", nil);
@@ -62,7 +67,7 @@ void init_symbols()
     lambda = new node("lambda", nil);
     macro = new node("macro", nil);
     rest = new node("&rest", nil);
-    opt = new node("&optional", nil);
+    optional = new node("&optional", nil);
     aux = new node("&aux", nil);
     gcverbose = new node("*gc-verbose*", t);
     evalhook = new node("*evalhook*", nil);
@@ -98,3 +103,19 @@ node *get_symbol(node *given_name)
 
     return candidate;
     }
+
+void primitive(const char *string, primfunc *func)
+    {
+    node *prim = new node(func);
+    node *sym = new node(string, unbound, prim, nil);
+    oblist->value = CONS(sym, oblist->value);
+    }
+
+void special(const char *string, sfunfunc *func)
+    {
+    node *sfun = new node(func);
+    sfun->type = sfuntype;
+    node *sym = new node(string, unbound, sfun, nil);
+    oblist->value = CONS(sym, oblist->value);
+    }
+

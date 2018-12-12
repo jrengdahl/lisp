@@ -1,6 +1,7 @@
 #ifndef LISPDEFS_H
 #define LISPDEFS_H
 
+#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,12 +36,15 @@ extern node *comma;
 extern node *commaat;
 extern node *minus;
 extern node *rest;
-extern node *opt;
+extern node *optional;
 extern node *aux;
 extern node *lambda;
 extern node *macro;
 extern node *gcverbose;
 extern node *evalhook;
+
+typedef node *primfunc(node *);
+typedef node *sfunfunc(node *);
 
 union node
     {
@@ -84,7 +88,14 @@ union node
     struct                          // primitive
         {
         uint64_t : 64;
-        node * (*primitive)(node *arglist);
+        primfunc *primitive;
+        uint64_t : 64;
+        };
+
+    struct                          // primitive
+        {
+        uint64_t : 64;
+        sfunfunc *sfun;
         uint64_t : 64;
         };
 
@@ -188,6 +199,15 @@ union node
         oblist->value = new node(this, oblist->value);
         }
 
+    // constructor for a primitive
+    node(primfunc *func) : node()
+        {
+        type = primtype;
+        primitive = func;
+        }
+
+
+
 
     };
 
@@ -200,7 +220,7 @@ struct nodeblock
     };
 
 
-void signal_error(const char *msg)
+static void signal_error(const char *msg)
     {
     printf("%s\n", msg);
     exit(-1);
@@ -213,6 +233,17 @@ extern bool cmp_str(node*, node *);
 extern bool cmp_str(node *left, const char *right);
 extern long gdec();
 extern node *get_symbol(node *name);
+extern void primitive(const char *, primfunc *);
+extern void special(const char *, sfunfunc *);
+extern node *interpreter(node *, node *);
+
+extern void init_symbols();
+extern void init_evaluator();
+extern void init_specials();
+extern void init_lists();
+extern void init_functions();
+
+
 
 #define CONS(l, r) new node(l, r)
 

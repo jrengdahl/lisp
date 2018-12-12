@@ -2,20 +2,22 @@
 #include <stdio.h>
 #include "lispdefs.h"
 
-extern void init_symbols();
-
-node *foo;
-
 int main(int argc, char **argv)
     {
     init_symbols();
+    init_evaluator();
+    init_specials();
+    init_functions();
+
+    node *n;
 
     while(true)
         {
         printf("Lisp>");
         fflush(stdout);
-        foo = lisp_read();
-        lisp_print(foo);
+        n = lisp_read();
+        n = eval(n);
+        lisp_print(n);
         }
 
     return 0;

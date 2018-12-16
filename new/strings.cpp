@@ -6,6 +6,8 @@ bool cmp_str(node *left, node *right)
     if(left->word0 != right->word0)return false;
     if(left->word1 != right->word1)return false;
     if(left->more==0 && right->more==0)return true;
+    left = left->more;
+    right = right->more;
 
     while(true)
         {
@@ -22,7 +24,7 @@ bool cmp_str(node *left, const char *right)
     {
     int len = left->length;
     node *next = left->more;
-    char *p = &left->data[0];
+    const char *p = &left->data[0];
     int rem = 8;
 
     while(len>0)

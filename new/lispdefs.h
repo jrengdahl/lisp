@@ -185,12 +185,26 @@ union node
         }
 
 
-    // constructor for a symbol, given a name, value, function, and plist
+    // constructor for a symbol, given a name as a C string, value, function, and plist
+    node(const char *string, node *val, node *fun, node *pli) : node()
+        {
+        type = symtype;
+
+        value = val;
+        more = new node;
+        more->function = fun;
+        more->plist = pli;
+        more->name = new node(string);
+
+        oblist->value = new node(this, oblist->value);
+        }
+
+    // constructor for a symbol, given a name as a Lisp string, value, function, and plist
     node(node *nam, node *val, node *fun, node *pli) : node()
         {
         type = symtype;
 
-   	    value = val;
+        value = val;
         more = new node;
         more->function = fun;
         more->plist = pli;
@@ -233,8 +247,9 @@ extern bool cmp_str(node*, node *);
 extern bool cmp_str(node *left, const char *right);
 extern long gdec();
 extern node *get_symbol(node *name);
-extern void primitive(const char *, primfunc *);
-extern void special(const char *, sfunfunc *);
+extern node *get_symbol(const char *name);
+extern void primitive(const char *name, primfunc *func, node **psym = 0);
+extern void special(const char *name, sfunfunc *func, node **pSym = 0);
 extern node *interpreter(node *, node *);
 
 extern void init_symbols();

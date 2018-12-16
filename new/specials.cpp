@@ -5,7 +5,7 @@
 #include "lispdefs.h"
 #include "io.h"
 
-node *quote(node *args)
+node *quotefunc(node *args)
     {
     return args->car;
     }
@@ -20,7 +20,7 @@ node *setq(node *args)
     {
     node *retval;
 
-    while(args)
+    while(args != nil)
         {
         retval = eval(args->cdr->car);
         args->car->value = retval;
@@ -35,5 +35,5 @@ void init_specials()
     primitive("set", set);
     special("setq", setq);
     special("setf", setq);
-    special("quote", quote);
+    special("quote", quotefunc, &quote);
     }

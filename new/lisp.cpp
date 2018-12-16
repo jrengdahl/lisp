@@ -16,6 +16,8 @@ int main(int argc, char **argv)
         printf("Lisp>");
         fflush(stdout);
         n = lisp_read();
+//        lisp_print(n); // for debug only
+//        lisp_print(oblist->value); // for debug only
         n = eval(n);
         lisp_print(n);
         }

@@ -36,10 +36,12 @@ void init_symbols()
     unbound = new node;
     unbound->type = symtype;
     unbound->more = new node;
-    unbound->more->function = unboundfunc;
+    unbound->more->function = new node(unboundfunc);
     unbound->more->plist = nil;
     unbound->more->name = new node("*unbound*");
     unbound->value = unbound;
+
+
 
     oblist = new node;
     oblist->type = symtype;
@@ -56,7 +58,6 @@ void init_symbols()
     t = new node("t", nil);
     t->more->value = t;
 
-    // quote = new node("quote", nil);
     function = new node("function", nil);
     pound = new node("pound", nil);
     bquote = new node("backquote", nil);
@@ -88,7 +89,7 @@ node *get_symbol(node *given_name)
         {
         candidate = ob->car;
         candidate_name = candidate->more->name;
-        if(cmp_str(given_name, candidate_name))
+        if(cmp_str(candidate_name, given_name))
             {
             return candidate;
             }
@@ -104,18 +105,48 @@ node *get_symbol(node *given_name)
     return candidate;
     }
 
-void primitive(const char *string, primfunc *func)
+
+node *get_symbol(const char *given_name)
     {
-    node *prim = new node(func);
-    node *sym = new node(string, unbound, prim, nil);
-    oblist->value = CONS(sym, oblist->value);
+    node *ob = oblist->value;
+    node *candidate;
+    node *candidate_name;
+
+    while(ob != nil)
+        {
+        candidate = ob->car;
+        candidate_name = candidate->more->name;
+        if(cmp_str(candidate_name, given_name))
+            {
+            return candidate;
+            }
+        else
+            {
+            ob = ob->cdr;
+            }
+        }
+
+    // symbol not found, make new one and add it to the oblist
+    candidate = new node(given_name, unbound, unbound, nil);
+
+    return candidate;
     }
 
-void special(const char *string, sfunfunc *func)
+
+void primitive(const char *string, primfunc *func, node **pSym)
+    {
+    node *prim = new node(func);
+    node *sym = get_symbol(string);
+    sym->more->function = prim;
+    if(pSym)*pSym = sym;
+    }
+
+void special(const char *string, sfunfunc *func, node **pSym)
     {
     node *sfun = new node(func);
     sfun->type = sfuntype;
-    node *sym = new node(string, unbound, sfun, nil);
-    oblist->value = CONS(sym, oblist->value);
+    node *sym = get_symbol(string);
+    sym->more->function = sfun;
+    if(pSym)*pSym = sym;
     }
 

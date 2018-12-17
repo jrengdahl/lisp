@@ -29,7 +29,7 @@ node *interpreter(node *func, node *args)
 
         node *farg = formal->car;
         formal = formal->cdr;
-        bindings = CONS(CONS(farg, farg->value), bindings);
+        bindings = cons(cons(farg, farg->value), bindings);
         farg->value = args->car;
         args = args->cdr;
         }
@@ -46,7 +46,7 @@ node *interpreter(node *func, node *args)
             formal = formal->cdr;
             if(farg->type == constype)
                 {
-                bindings = CONS(CONS(farg->car, farg->car->value), bindings);
+                bindings = cons(cons(farg->car, farg->car->value), bindings);
                 if(args == nil)
                     {
                     farg->car->value = eval(farg->cdr->car);
@@ -58,7 +58,7 @@ node *interpreter(node *func, node *args)
                 }
             else
                 {
-                bindings = CONS(CONS(farg, farg->value), bindings);
+                bindings = cons(cons(farg, farg->value), bindings);
                 farg->value = args->car;
                 }
             args = args->cdr;
@@ -76,7 +76,7 @@ node *interpreter(node *func, node *args)
 
         node *farg = formal->car;
         formal = formal->cdr;
-        bindings = CONS(CONS(farg, farg->value), bindings);
+        bindings = cons(cons(farg, farg->value), bindings);
         farg->value = args;
         args = nil;
         }
@@ -96,12 +96,12 @@ node *interpreter(node *func, node *args)
             formal = formal->cdr;
             if(farg->type == constype)
                 {
-                bindings = CONS(CONS(farg->car, farg->car->value), bindings);
+                bindings = cons(cons(farg->car, farg->car->value), bindings);
                 farg->car->value = eval(farg->cdr->car);
                 }
             else
                 {
-                bindings = CONS(CONS(farg, farg->value), bindings);
+                bindings = cons(cons(farg, farg->value), bindings);
                 farg->value = nil;
                 }
             }

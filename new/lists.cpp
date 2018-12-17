@@ -1,114 +1,114 @@
 #include "lispdefs.h"
 
-node *car(node *args)
+node *carfunc(node *args)
     {
     return args->car->car;
     }
 
-node *cdr(node *args)
+node *cdrfunc(node *args)
     {
     return args->car->cdr;
     }
 
-node *caar(node *args)
+node *caarfunc(node *args)
     {
     return args->car->car->car;
     }
 
-node *cadr(node *args)
+node *cadrfunc(node *args)
     {
     return args->car->cdr->car;
     }
 
-node *cdar(node *args)
+node *cdarfunc(node *args)
     {
     return args->car->car->cdr;
     }
 
-node *cddr(node *args)
+node *cddrfunc(node *args)
     {
     return args->car->cdr->cdr;
     }
 
-node *caaar(node *args)
+node *caaarfunc(node *args)
     {
     return args->car->car->car->car;
     }
 
-node *caadr(node *args)
+node *caadrfunc(node *args)
     {
     return args->car->cdr->car->car;
     }
 
-node *cadar(node *args)
+node *cadarfunc(node *args)
     {
     return args->car->car->cdr->car;
     }
 
-node *caddr(node *args)
+node *caddrfunc(node *args)
     {
     return args->car->cdr->cdr->car;
     }
 
-node *cdaar(node *args)
+node *cdaarfunc(node *args)
     {
     return args->car->car->car->cdr;
     }
 
-node *cdadr(node *args)
+node *cdadrfunc(node *args)
     {
     return args->car->cdr->car->cdr;
     }
 
-node *cddar(node *args)
+node *cddarfunc(node *args)
     {
     return args->car->car->cdr->cdr;
     }
 
-node *cdddr(node *args)
+node *cdddrfunc(node *args)
     {
     return args->car->cdr->cdr->cdr;
     }
 
-node *fourth(node *args)
+node *fourthfunc(node *args)
     {
     return args->car->cdr->cdr->cdr->car;
     }
 
-node *fifth(node *args)
+node *fifthfunc(node *args)
     {
     return args->car->cdr->cdr->cdr->cdr->car;
     }
 
-node *sixth(node *args)
+node *sixthfunc(node *args)
     {
     return args->car->cdr->cdr->cdr->cdr->cdr->car;
     }
 
-node *seventh(node *args)
+node *seventhfunc(node *args)
     {
     return args->car->cdr->cdr->cdr->cdr->cdr->cdr->car;
     }
 
-node *eighth(node *args)
+node *eighthfunc(node *args)
     {
     return args->car->cdr->cdr->cdr->cdr->cdr->cdr->cdr->car;
     }
 
-node *ninth(node *args)
+node *ninthfunc(node *args)
     {
     return args->car->cdr->cdr->cdr->cdr->cdr->cdr->cdr->cdr->car;
     }
 
-node *tenth(node *args)
+node *tenthfunc(node *args)
     {
     return args->car->cdr->cdr->cdr->cdr->cdr->cdr->cdr->cdr->cdr->car;
     }
 
 node *nth(node *args)
     {
-    unsigned count = FIRST(args)->numerator;
-    node *list = SECOND(args);
+    unsigned count = first(args)->numerator;
+    node *list = second(args);
     while(count--)
         {
         list = list->cdr;
@@ -118,7 +118,7 @@ node *nth(node *args)
 
 node *last(node *args)
     {
-    node *list = FIRST(args);
+    node *list = first(args);
     while(list->cdr != nil)
         {
         list = list->cdr;
@@ -126,9 +126,9 @@ node *last(node *args)
     return list->car;
     }
 
-node *cons(node *args)
+node *consfunc(node *args)
     {
-    return CONS(FIRST(args), SECOND(args));
+    return cons(first(args), first(args));
     }
 
 node *list(node *args)
@@ -138,49 +138,80 @@ node *list(node *args)
 
 node *list_(node *args)
     {
-    if(CAR(args) == nil)return nil;
-    if(CDR(args) == nil)return args;
+    if(car(args) == nil)return nil;
+    if(cdr(args) == nil)return args;
     node *n = args;
-    while(CDR(CDR(n)) != nil)
+    while(cdr(cdr(n)) != nil)
         {
-        n = CDR(n);
+        n = cdr(n);
         }
     n->cdr = n->cdr->car;
     return args;
     }
 
+node *append(node *args)
+    {
+    node *first;
+    node **last = &first;
+
+    while(args->cdr != nil)
+        {
+        node *list = follow(args);
+        while(list != nil)
+            {
+            *last = cons(follow(list), nil);
+            last = &(*last)->cdr;
+            }
+        }
+    
+    *last = args->car;
+    return first;
+    }
+
+node *reverse(node *args)
+    {
+    node *retval = nil;
+    node *list = first(args);
+    while(list != nil)
+        {
+        retval = cons(follow(list), retval);
+        }
+    return retval;
+    }
+
 void init_lists()
     {
-    primitive("car",   car  );
-    primitive("cdr",   cdr  );
-    primitive("caar",  caar );
-    primitive("cadr",  cadr );
-    primitive("cdar",  cdar );
-    primitive("cddr",  cddr );
-    primitive("caaar", caaar);
-    primitive("caadr", caadr);
-    primitive("cadar", cadar);
-    primitive("caddr", caddr);
-    primitive("cdaar", cdaar);
-    primitive("cdadr", cdadr);
-    primitive("cddar", cddar);
-    primitive("cdddr", cdddr);
+    primitive("car",   carfunc  );
+    primitive("cdr",   cdrfunc  );
+    primitive("caar",  caarfunc );
+    primitive("cadr",  cadrfunc );
+    primitive("cdar",  cdarfunc );
+    primitive("cddr",  cddrfunc );
+    primitive("caaar", caaarfunc);
+    primitive("caadr", caadrfunc);
+    primitive("cadar", cadarfunc);
+    primitive("caddr", caddrfunc);
+    primitive("cdaar", cdaarfunc);
+    primitive("cdadr", cdadrfunc);
+    primitive("cddar", cddarfunc);
+    primitive("cdddr", cdddrfunc);
 
-    primitive("first",   car    );
-    primitive("second",  cadr   );
-    primitive("third",   caddr  );
-    primitive("fourth",  fourth );
-    primitive("fifth",   fifth  );
-    primitive("sixth",   sixth  );
-    primitive("seventh", seventh);
-    primitive("eighth",  eighth );
-    primitive("ninth",   ninth  );
-    primitive("tenth",   tenth  );
+    primitive("first",   carfunc    );
+    primitive("second",  cadrfunc   );
+    primitive("third",   caddrfunc  );
+    primitive("fourth",  fourthfunc );
+    primitive("fifth",   fifthfunc  );
+    primitive("sixth",   sixthfunc  );
+    primitive("seventh", seventhfunc);
+    primitive("eighth",  eighthfunc );
+    primitive("ninth",   ninthfunc  );
+    primitive("tenth",   tenthfunc  );
 
     primitive("nth",     nth);
     primitive("last",    last); 
 
-    primitive("cons",    cons);
+    primitive("cons",    consfunc);
     primitive("list",    list);
-    primitive("list*",    list_);
+    primitive("list*",   list_);
+    primitive("append",  append);
     }

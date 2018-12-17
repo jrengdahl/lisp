@@ -56,7 +56,7 @@ void init_symbols()
     pseudo_nil = new node("nil", nil);
 
     t = new node("t", nil);
-    t->more->value = t;
+    t->value = t;
 
     function = new node("function", nil);
     pound = new node("pound", nil);

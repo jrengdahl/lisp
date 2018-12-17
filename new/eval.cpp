@@ -40,7 +40,7 @@ node *evalfun(node *n)
 
     node *tmp = evalhook;
     node *func = evalhook;
-    node *args = CONS(n, CONS(nil, nil));
+    node *args = cons(n, cons(nil, nil));
     evalhook = nil;
 
     if(func->type == symtype)

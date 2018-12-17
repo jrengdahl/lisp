@@ -196,7 +196,7 @@ node *lisp_read()
         else if(c == '\'')
             {
             getc(stdin);
-            return CONS(quote, CONS(lisp_read(), nil));
+            return cons(quote, cons(lisp_read(), nil));
             }
 
 
@@ -204,7 +204,7 @@ node *lisp_read()
             {
             getc(stdin);
 
-            return CONS(bquote, CONS( CONS(quote, CONS(lisp_read(), nil)), nil));
+            return cons(bquote, cons( cons(quote, cons(lisp_read(), nil)), nil));
             }
 
 
@@ -216,11 +216,11 @@ node *lisp_read()
             if(c == '@')
                 {
                 getc(stdin);
-                return CONS(commaat, CONS(lisp_read(), nil));
+                return cons(commaat, cons(lisp_read(), nil));
                 }
             else
                 {
-                return CONS(comma, CONS(lisp_read(), nil));
+                return cons(comma, cons(lisp_read(), nil));
                 }
             }
 
@@ -319,11 +319,11 @@ node *lisp_read()
                 {
                 getc(stdin);
 
-                return CONS(function, CONS(lisp_read(), nil));
+                return cons(function, cons(lisp_read(), nil));
                 }
             else
                 {
-                return CONS(pound, CONS(lisp_read(), nil));
+                return cons(pound, cons(lisp_read(), nil));
                 }
             }
 

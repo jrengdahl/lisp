@@ -262,34 +262,39 @@ extern void init_lists();
 extern void init_numbers();
 
 
-#define CONS(l, r) (new node(l, r))
+static inline node *cons(node *left, node *right) { return new node(left, right); }
 
-#define CAR(x) ((x)->car)
-#define CDR(x) ((x)->cdr)
+static inline node *car(node *x)   { return x->car; }
+static inline node *cdr(node *x)   { return x->cdr; }
+static inline node *caar(node *x)  { return x->car->car; }
+static inline node *cadr(node *x)  { return x->cdr->car; }
+static inline node *cdar(node *x)  { return x->car->cdr; }
+static inline node *cddr(node *x)  { return x->cdr->cdr; }
+static inline node *caaar(node *x) { return x->car->car->car; }
+static inline node *caadr(node *x) { return x->cdr->car->car; }
+static inline node *cadar(node *x) { return x->car->cdr->car; }
+static inline node *caddr(node *x) { return x->cdr->cdr->car; }
+static inline node *cdaar(node *x) { return x->car->car->cdr; }
+static inline node *cdadr(node *x) { return x->cdr->car->cdr; }
+static inline node *cddar(node *x) { return x->car->cdr->cdr; }
+static inline node *cdddr(node *x) { return x->cdr->cdr->cdr; }
 
-#define CAAR(x) ((x)->car->car)
-#define CADR(x) ((x)->cdr->car)
-#define CDAR(x) ((x)->car->cdr)
-#define CDDR(x) ((x)->cdr->cdr)
+static inline node *first(node *x)   { return x->car; }
+static inline node *second(node *x)  { return x->cdr->car; }
+static inline node *third(node *x)   { return x->cdr->cdr->car; }
+static inline node *fourth(node *x)  { return x->cdr->cdr->cdr->car; }
+static inline node *fifth(node *x)   { return x->cdr->cdr->cdr->cdr->car; }
+static inline node *sixth(node *x)   { return x->cdr->cdr->cdr->cdr->cdr->car; }
+static inline node *seventh(node *x) { return x->cdr->cdr->cdr->cdr->cdr->cdr->car; }
+static inline node *eighth(node *x)  { return x->cdr->cdr->cdr->cdr->cdr->cdr->cdr->car; }
+static inline node *ninth(node *x)   { return x->cdr->cdr->cdr->cdr->cdr->cdr->cdr->cdr->car; }
+static inline node *tenth(node *x)   { return x->cdr->cdr->cdr->cdr->cdr->cdr->cdr->cdr->cdr->car; }
 
-#define CAAAR(x) ((x)->car->car->car)
-#define CAADR(x) ((x)->cdr->car->car)
-#define CADAR(x) ((x)->car->cdr->car)
-#define CADDR(x) ((x)->cdr->cdr->car)
-#define CDAAR(x) ((x)->car->car->cdr)
-#define CDADR(x) ((x)->cdr->car->cdr)
-#define CDDAR(x) ((x)->car->cdr->cdr)
-#define CDDDR(x) ((x)->cdr->cdr->cdr)
-
-#define FIRST(x)   ((x)->car)
-#define SECOND(x)  ((x)->cdr->car)
-#define THIRD(x)   ((x)->cdr->cdr->car)
-#define FOURTH(x)  ((x)->cdr->cdr->cdr->car)
-#define FIFTH(x)   ((x)->cdr->cdr->cdr->cdr->car)
-#define SIXTH(x)   ((x)->cdr->cdr->cdr->cdr->cdr->car)
-#define SEVENTH(x) ((x)->cdr->cdr->cdr->cdr->cdr->cdr->car)
-#define EIGHTH(x)  ((x)->cdr->cdr->cdr->cdr->cdr->cdr->cdr->car)
-#define NINTH(x)   ((x)->cdr->cdr->cdr->cdr->cdr->cdr->cdr->cdr->car)
-#define TENTH(x)   ((x)->cdr->cdr->cdr->cdr->cdr->cdr->cdr->cdr->cdr->car)
+static inline node *follow(node *&list)
+    {
+    node *n = list->car;
+    list = list->cdr;
+    return n;
+    }
 
 #endif // LISPDEFS_H

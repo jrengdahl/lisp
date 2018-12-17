@@ -59,17 +59,18 @@ void lprint(node *n)
     if(n==nil)
         {
         printf("nil");
+        return;
         }
 
     switch(n->type)
         {
     case constype:
         pcons(n);
-        break;
+        return;
 
     case numtype:
         printf("%ld", n->numerator);
-        break;
+        return;
 
     case rattype:
         // reduce(n);
@@ -78,13 +79,13 @@ void lprint(node *n)
             {
             printf("/%lu", n->denominator);
             }
-        break;
+        return;
 
     case stringtype:
         printf("\"");
         print_string(n);
         printf("\"");
-        break;
+        return;
 
     case chartype:
         if(n->data[0] <= ' ')
@@ -95,26 +96,27 @@ void lprint(node *n)
             {
             printf("#\\%c", n->data[0]);
             }
-        break;
+        return;
 
     case primtype:
-        printf("#(primitive: %zx \"", n->more->function);
-        print_string(n->more->name);
+        printf("#(primitive: %zx \"", n->primitive);
+        print_string(n->name);
         printf("\")");
-        break;
+        return;
 
     case sfuntype:
-        printf("#(special form: %zx \"", n->more->function);
-        print_string(n->more->name);
+        printf("#(special form: %zx \"", n->primitive);
+        print_string(n->name);
         printf("\")");
-        break;
+        return;
 
     case symtype:
         print_string(n->more->name);
-        break;
+        return;
 
     default:
         signal_error("unknown node type in lprint");
+        return;
         }
     }
 

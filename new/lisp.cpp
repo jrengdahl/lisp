@@ -1,5 +1,3 @@
-#include <unistd.h>
-#include <stdio.h>
 #include "lispdefs.h"
 
 int main(int argc, char **argv)
@@ -8,6 +6,8 @@ int main(int argc, char **argv)
     init_evaluator();
     init_specials();
     init_functions();
+    init_lists();
+    init_numbers();
 
     node *n;
 

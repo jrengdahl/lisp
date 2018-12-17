@@ -138,6 +138,7 @@ void primitive(const char *string, primfunc *func, node **pSym)
     node *prim = new node(func);
     node *sym = get_symbol(string);
     sym->more->function = prim;
+    prim->name = sym->more->name;
     if(pSym)*pSym = sym;
     }
 
@@ -147,6 +148,7 @@ void special(const char *string, sfunfunc *func, node **pSym)
     sfun->type = sfuntype;
     node *sym = get_symbol(string);
     sym->more->function = sfun;
+    sfun->name = sym->more->name;
     if(pSym)*pSym = sym;
     }
 

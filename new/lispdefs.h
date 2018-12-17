@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 
 enum TYPE : uint8_t
@@ -67,8 +68,8 @@ union node
 
     struct                          // second node of symbol
         {
-        node *function;
         node *plist;
+        node *function;
         node *name;
         };
 
@@ -257,10 +258,38 @@ extern void init_evaluator();
 extern void init_specials();
 extern void init_lists();
 extern void init_functions();
+extern void init_lists();
+extern void init_numbers();
 
 
+#define CONS(l, r) (new node(l, r))
 
-#define CONS(l, r) new node(l, r)
+#define CAR(x) ((x)->car)
+#define CDR(x) ((x)->cdr)
 
+#define CAAR(x) ((x)->car->car)
+#define CADR(x) ((x)->cdr->car)
+#define CDAR(x) ((x)->car->cdr)
+#define CDDR(x) ((x)->cdr->cdr)
+
+#define CAAAR(x) ((x)->car->car->car)
+#define CAADR(x) ((x)->cdr->car->car)
+#define CADAR(x) ((x)->car->cdr->car)
+#define CADDR(x) ((x)->cdr->cdr->car)
+#define CDAAR(x) ((x)->car->car->cdr)
+#define CDADR(x) ((x)->cdr->car->cdr)
+#define CDDAR(x) ((x)->car->cdr->cdr)
+#define CDDDR(x) ((x)->cdr->cdr->cdr)
+
+#define FIRST(x)   ((x)->car)
+#define SECOND(x)  ((x)->cdr->car)
+#define THIRD(x)   ((x)->cdr->cdr->car)
+#define FOURTH(x)  ((x)->cdr->cdr->cdr->car)
+#define FIFTH(x)   ((x)->cdr->cdr->cdr->cdr->car)
+#define SIXTH(x)   ((x)->cdr->cdr->cdr->cdr->cdr->car)
+#define SEVENTH(x) ((x)->cdr->cdr->cdr->cdr->cdr->cdr->car)
+#define EIGHTH(x)  ((x)->cdr->cdr->cdr->cdr->cdr->cdr->cdr->car)
+#define NINTH(x)   ((x)->cdr->cdr->cdr->cdr->cdr->cdr->cdr->cdr->car)
+#define TENTH(x)   ((x)->cdr->cdr->cdr->cdr->cdr->cdr->cdr->cdr->cdr->car)
 
 #endif // LISPDEFS_H

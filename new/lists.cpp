@@ -179,6 +179,33 @@ node *reverse(node *args)
     return retval;
     }
 
+node *length(node *args)
+    {
+    node *arg = first(args);
+    node *retval = new node((int64_t)0);
+
+    if(arg->type == stringtype)
+        {
+        retval->numerator = arg->length;
+        }
+
+    else if(arg->type == constype)
+        {
+        while(arg != nil)
+            {
+            ++retval->numerator;
+            arg = cdr(arg);
+            }
+        }
+
+    else
+        {
+        signal_error("incorrect arg for length");
+        }
+
+    return retval;
+    }
+
 void init_lists()
     {
     primitive("car",   carfunc  );
@@ -214,4 +241,6 @@ void init_lists()
     primitive("list",    list);
     primitive("list*",   list_);
     primitive("append",  append);
+    primitive("reverse", reverse);
+    primitive("length",  length);
     }

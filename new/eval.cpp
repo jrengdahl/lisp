@@ -163,10 +163,8 @@ node *funcall(node *args)
 // (apply fun a1 a2 a3 ... an) applies the function to (a1 a2 a3 . an)
 // TODO this is an abbreviated apply, which only takes one arg
 // which is the most useful form: (apply fn '(a1 a2 a3) is like (fn a1 a2 a3)
-node *apply(node *n)
+node *apply(node *func, node *args)
     {
-    node *func = n->car;
-    node *args = n->cdr->car;
     if(func->type == symtype)
         {
         func = func->more->function;
@@ -181,6 +179,11 @@ node *apply(node *n)
         return (*func->primitive)(args);
         }
     else signal_error("attempt to apply a non-function object to args");
+    }
+
+node *applyprim(node *args)
+    {
+    return apply(first(args), second(args));
     }
 
 
@@ -205,6 +208,7 @@ node *eval(node *n)
 
     default:
         signal_error("unknown node type in eval\n");
+        return nil;
         }
     }
 
@@ -254,7 +258,7 @@ node *evalhookprim(node *args)
 void init_evaluator()
     {
     primitive("eval", evalprim);
-    primitive("apply", apply);
+    primitive("apply", applyprim);
     primitive("funcall", funcall);
     primitive("macroexpand", macroexpand);
     primitive("evalhook", evalhookprim);

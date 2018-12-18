@@ -252,6 +252,7 @@ extern node *get_symbol(const char *name);
 extern void primitive(const char *name, primfunc *func, node **psym = 0);
 extern void special(const char *name, sfunfunc *func, node **pSym = 0);
 extern node *interpreter(node *, node *);
+extern node *apply(node *func, node *args);
 
 extern void init_symbols();
 extern void init_evaluator();
@@ -295,6 +296,16 @@ static inline node *follow(node *&list)
     node *n = list->car;
     list = list->cdr;
     return n;
+    }
+
+// append a value to a list being built. The "last" pointer follows the list, and
+// points to where the next node will be stored. At the beginning of the list *last points to first,
+// else it points to the cdr of the last node of the list.
+
+static inline void addlist(node *value, node **&last)
+    {
+    *last = cons(value, nil);
+    last = &(*last)->cdr;
     }
 
 #endif // LISPDEFS_H

@@ -128,7 +128,7 @@ node *last(node *args)
 
 node *consfunc(node *args)
     {
-    return cons(first(args), first(args));
+    return cons(first(args), second(args));
     }
 
 node *list(node *args)
@@ -206,6 +206,43 @@ node *length(node *args)
     return retval;
     }
 
+node *rplaca(node *args)
+    {
+    node *c = first(args);
+    node *a = second(args);
+    c->car = a;
+    return c;
+    }
+
+node *rplacd(node *args)
+    {
+    node *c = first(args);
+    node *a = second(args);
+    c->cdr = a;
+    return c;
+    }
+
+node *mapcar(node *args)
+    {
+    node *func = follow(args);
+
+    node *result = nil;
+    node **lastr = &result;
+
+    while(true)
+        {
+        node *first = nil;
+        node **last = &first;
+        for(node *list = args; list != nil; list = cdr(list))
+            {
+            if(list->car == nil)return result;
+            addlist(follow(list->car), last);
+            }
+        addlist(apply(func, first), lastr);
+        }
+    }
+
+
 void init_lists()
     {
     primitive("car",   carfunc  );
@@ -243,4 +280,7 @@ void init_lists()
     primitive("append",  append);
     primitive("reverse", reverse);
     primitive("length",  length);
+    primitive("rplaca",  rplaca);
+    primitive("rplacd",  rplacd);
+    primitive("mapcar",  mapcar);
     }

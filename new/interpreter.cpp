@@ -11,10 +11,9 @@
 
 node *interpreter(node *func, node *args)
     {
-    node *bindings = nil;                                               // a list of the original bindings of the args
-    func = func->cdr;                                                   // skip over the lambda
-    node *formal = func->car;                                           // get the list of formal args
-    func = func->cdr;                                                   // skip to the list of forms to evaluate
+    node *bindings = nil;                               // a list of the original bindings of the args
+    follow(func);                                       // skip over the lambda
+    node *formal = follow(func);                        // get the list of formal args
 
     // process and bind the formal arg list
     while(formal != nil
@@ -27,56 +26,51 @@ node *interpreter(node *func, node *args)
             signal_error("required arg missing");
             }
 
-        node *farg = formal->car;
-        formal = formal->cdr;
-        bindings = cons(cons(farg, farg->value), bindings);
-        farg->value = args->car;
-        args = args->cdr;
+        node *farg = follow(formal);
+        pushalist(farg, farg->value, bindings);
+        farg->value = follow(args);
         }
 
     if(formal->car == optional)
         {
-        formal = formal->cdr;
+        follow(formal);
 
         while(formal != nil
         && formal->car != rest
         && formal->car != aux)
             {
-            node *farg = formal->car;
-            formal = formal->cdr;
+            node *farg = follow(formal);
             if(farg->type == constype)
                 {
-                bindings = cons(cons(farg->car, farg->car->value), bindings);
+                pushalist(farg->car, farg->car->value, bindings);
                 if(args == nil)
                     {
                     farg->car->value = eval(farg->cdr->car);
                     }
                 else
                     {
-                    farg->car->value = args->car;
+                    farg->car->value = follow(args);
                     }
                 }
             else
                 {
-                bindings = cons(cons(farg, farg->value), bindings);
-                farg->value = args->car;
+                pushalist(farg, farg->value, bindings);
+                farg->value = follow(args);
                 }
-            args = args->cdr;
             }
         }
 
     if(formal->car == rest)
         {
-        formal = formal->cdr;
+        follow(formal);
 
         if(formal == nil)
             {
             signal_error("missing symbol after &rest");
             }
 
-        node *farg = formal->car;
-        formal = formal->cdr;
-        bindings = cons(cons(farg, farg->value), bindings);
+        node *farg = follow(formal);
+        pushalist(farg, farg->value, bindings);
         farg->value = args;
         args = nil;
         }
@@ -88,20 +82,19 @@ node *interpreter(node *func, node *args)
 
     if(formal->car == aux)
         {
-        formal = formal->cdr;
+        follow(formal);
 
         while(formal != nil)
             {
-            node *farg = formal->car;
-            formal = formal->cdr;
+            node *farg = follow(formal);
             if(farg->type == constype)
                 {
-                bindings = cons(cons(farg->car, farg->car->value), bindings);
+                pushalist(farg->car, farg->car->value, bindings);
                 farg->car->value = eval(farg->cdr->car);
                 }
             else
                 {
-                bindings = cons(cons(farg, farg->value), bindings);
+                pushalist(farg, farg->value, bindings);
                 farg->value = nil;
                 }
             }
@@ -115,14 +108,13 @@ node *interpreter(node *func, node *args)
     node *retval = nil;
     while(func != nil)
         {
-        retval = eval(func->car);
-        func = func->cdr;
+        retval = eval(follow(func));
         }
 
     while(bindings != nil)
         {
         bindings->car->car->value = bindings->car->cdr;
-        bindings = bindings->cdr;
+        follow(bindings);
         }
 
     return retval;

@@ -236,9 +236,9 @@ node *mapcar(node *args)
         for(node *list = args; list != nil; list = cdr(list))
             {
             if(list->car == nil)return result;
-            addlist(follow(list->car), last);
+            addcons(follow(list->car), last);
             }
-        addlist(apply(func, first), lastr);
+        addcons(apply(func, first), lastr);
         }
     }
 

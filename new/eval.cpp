@@ -12,20 +12,12 @@ static node *nhook(node *);
 // mapcar 'eval to each member of a list, and return the result. Used to process
 node *evalargs(node *args)
     {
-    if(args == nil)return nil;                              // if input is nil return nil
+    node *first = nil;
+    node **last = &first;
 
-    node *first;
-    node *last;
-
-    first = new node(eval(args->car), nil);                 // eval the first arg and make the result the initial list member
-    last = first;
-    args = args->cdr;
-
-    while(args != nil)                                      // for any other args
+    while(args != nil)
         {
-        last->cdr = new node(eval(args->car), nil);         // eval and add the result to the end of the list
-        last = last->cdr;
-        args = args->cdr;
+        addcons(eval(follow(args)), last);                  // eval the next arg and add the result to the end of the list
         }
 
     return first;                                           // return the list

@@ -53,8 +53,8 @@ node *put_sym_fun(node *args)
         signal_error("put-sym-fun needs a symbol");
         }
 
-    args->car->more->function = args->cdr->car;
-    return args->cdr->car;
+    first(args)->more->function = second(args);
+    return second(args);
     }
 
 node *put_sym_plist(node *args)
@@ -64,8 +64,8 @@ node *put_sym_plist(node *args)
         signal_error("put-sym-plist needs a symbol");
         }
 
-    args->car->more->plist = args->cdr->car;
-    return args->cdr->car;
+    first(args)->more->plist = second(args);
+    return second(args);
     }
 
 void init_functions()

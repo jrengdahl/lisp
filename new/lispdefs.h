@@ -302,10 +302,15 @@ static inline node *follow(node *&list)
 // points to where the next node will be stored. At the beginning of the list *last points to first,
 // else it points to the cdr of the last node of the list.
 
-static inline void addlist(node *value, node **&last)
+static inline void addcons(node *value, node **&last)
     {
     *last = cons(value, nil);
     last = &(*last)->cdr;
+    }
+
+static inline void pushalist(node *left, node *right, node *&alist)
+    {
+    alist = cons(cons(left, right), alist);
     }
 
 #endif // LISPDEFS_H
